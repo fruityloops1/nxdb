@@ -1,0 +1,158 @@
+[
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Source/main.cpp.o -c /home/nala/git/nxdb/client/Source/main.cpp",
+  "file": "/home/nala/git/nxdb/client/Source/main.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Source/main.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Source/pe/Enet/NetClient.cpp.o -c /home/nala/git/nxdb/client/Source/pe/Enet/NetClient.cpp",
+  "file": "/home/nala/git/nxdb/client/Source/pe/Enet/NetClient.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Source/pe/Enet/NetClient.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Source/pe/Enet/ProjectPacketHandler.cpp.o -c /home/nala/git/nxdb/client/Source/pe/Enet/ProjectPacketHandler.cpp",
+  "file": "/home/nala/git/nxdb/client/Source/pe/Enet/ProjectPacketHandler.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Source/pe/Enet/ProjectPacketHandler.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Source/pe/Render.cpp.o -c /home/nala/git/nxdb/client/Source/pe/Render.cpp",
+  "file": "/home/nala/git/nxdb/client/Source/pe/Render.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Source/pe/Render.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Source/pe/Util.cpp.o -c /home/nala/git/nxdb/client/Source/pe/Util.cpp",
+  "file": "/home/nala/git/nxdb/client/Source/pe/Util.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Source/pe/Util.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Library/imgui/imgui.cpp.o -c /home/nala/git/nxdb/client/Library/imgui/imgui.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/imgui/imgui.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Library/imgui/imgui.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Library/imgui/imgui_demo.cpp.o -c /home/nala/git/nxdb/client/Library/imgui/imgui_demo.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/imgui/imgui_demo.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Library/imgui/imgui_demo.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Library/imgui/imgui_draw.cpp.o -c /home/nala/git/nxdb/client/Library/imgui/imgui_draw.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/imgui/imgui_draw.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Library/imgui/imgui_draw.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Library/imgui/imgui_tables.cpp.o -c /home/nala/git/nxdb/client/Library/imgui/imgui_tables.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/imgui/imgui_tables.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Library/imgui/imgui_tables.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/peepa-server.dir/Library/imgui/imgui_widgets.cpp.o -c /home/nala/git/nxdb/client/Library/imgui/imgui_widgets.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/imgui/imgui_widgets.cpp",
+  "output": "CMakeFiles/peepa-server.dir/Library/imgui/imgui_widgets.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/enet",
+  "command": "/usr/bin/clang -DHAS_FCNTL=1 -DHAS_GETADDRINFO=1 -DHAS_GETHOSTBYADDR_R=1 -DHAS_GETHOSTBYNAME_R=1 -DHAS_GETNAMEINFO=1 -DHAS_INET_NTOP=1 -DHAS_INET_PTON=1 -DHAS_MSGHDR_FLAGS=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g   -Wno-error -o CMakeFiles/enet.dir/callbacks.c.o -c /home/nala/git/nxdb/client/Library/enet/callbacks.c",
+  "file": "/home/nala/git/nxdb/client/Library/enet/callbacks.c",
+  "output": "Library/enet/CMakeFiles/enet.dir/callbacks.c.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/enet",
+  "command": "/usr/bin/clang -DHAS_FCNTL=1 -DHAS_GETADDRINFO=1 -DHAS_GETHOSTBYADDR_R=1 -DHAS_GETHOSTBYNAME_R=1 -DHAS_GETNAMEINFO=1 -DHAS_INET_NTOP=1 -DHAS_INET_PTON=1 -DHAS_MSGHDR_FLAGS=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g   -Wno-error -o CMakeFiles/enet.dir/compress.c.o -c /home/nala/git/nxdb/client/Library/enet/compress.c",
+  "file": "/home/nala/git/nxdb/client/Library/enet/compress.c",
+  "output": "Library/enet/CMakeFiles/enet.dir/compress.c.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/enet",
+  "command": "/usr/bin/clang -DHAS_FCNTL=1 -DHAS_GETADDRINFO=1 -DHAS_GETHOSTBYADDR_R=1 -DHAS_GETHOSTBYNAME_R=1 -DHAS_GETNAMEINFO=1 -DHAS_INET_NTOP=1 -DHAS_INET_PTON=1 -DHAS_MSGHDR_FLAGS=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g   -Wno-error -o CMakeFiles/enet.dir/host.c.o -c /home/nala/git/nxdb/client/Library/enet/host.c",
+  "file": "/home/nala/git/nxdb/client/Library/enet/host.c",
+  "output": "Library/enet/CMakeFiles/enet.dir/host.c.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/enet",
+  "command": "/usr/bin/clang -DHAS_FCNTL=1 -DHAS_GETADDRINFO=1 -DHAS_GETHOSTBYADDR_R=1 -DHAS_GETHOSTBYNAME_R=1 -DHAS_GETNAMEINFO=1 -DHAS_INET_NTOP=1 -DHAS_INET_PTON=1 -DHAS_MSGHDR_FLAGS=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g   -Wno-error -o CMakeFiles/enet.dir/list.c.o -c /home/nala/git/nxdb/client/Library/enet/list.c",
+  "file": "/home/nala/git/nxdb/client/Library/enet/list.c",
+  "output": "Library/enet/CMakeFiles/enet.dir/list.c.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/enet",
+  "command": "/usr/bin/clang -DHAS_FCNTL=1 -DHAS_GETADDRINFO=1 -DHAS_GETHOSTBYADDR_R=1 -DHAS_GETHOSTBYNAME_R=1 -DHAS_GETNAMEINFO=1 -DHAS_INET_NTOP=1 -DHAS_INET_PTON=1 -DHAS_MSGHDR_FLAGS=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g   -Wno-error -o CMakeFiles/enet.dir/packet.c.o -c /home/nala/git/nxdb/client/Library/enet/packet.c",
+  "file": "/home/nala/git/nxdb/client/Library/enet/packet.c",
+  "output": "Library/enet/CMakeFiles/enet.dir/packet.c.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/enet",
+  "command": "/usr/bin/clang -DHAS_FCNTL=1 -DHAS_GETADDRINFO=1 -DHAS_GETHOSTBYADDR_R=1 -DHAS_GETHOSTBYNAME_R=1 -DHAS_GETNAMEINFO=1 -DHAS_INET_NTOP=1 -DHAS_INET_PTON=1 -DHAS_MSGHDR_FLAGS=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g   -Wno-error -o CMakeFiles/enet.dir/peer.c.o -c /home/nala/git/nxdb/client/Library/enet/peer.c",
+  "file": "/home/nala/git/nxdb/client/Library/enet/peer.c",
+  "output": "Library/enet/CMakeFiles/enet.dir/peer.c.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/enet",
+  "command": "/usr/bin/clang -DHAS_FCNTL=1 -DHAS_GETADDRINFO=1 -DHAS_GETHOSTBYADDR_R=1 -DHAS_GETHOSTBYNAME_R=1 -DHAS_GETNAMEINFO=1 -DHAS_INET_NTOP=1 -DHAS_INET_PTON=1 -DHAS_MSGHDR_FLAGS=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g   -Wno-error -o CMakeFiles/enet.dir/protocol.c.o -c /home/nala/git/nxdb/client/Library/enet/protocol.c",
+  "file": "/home/nala/git/nxdb/client/Library/enet/protocol.c",
+  "output": "Library/enet/CMakeFiles/enet.dir/protocol.c.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/enet",
+  "command": "/usr/bin/clang -DHAS_FCNTL=1 -DHAS_GETADDRINFO=1 -DHAS_GETHOSTBYADDR_R=1 -DHAS_GETHOSTBYNAME_R=1 -DHAS_GETNAMEINFO=1 -DHAS_INET_NTOP=1 -DHAS_INET_PTON=1 -DHAS_MSGHDR_FLAGS=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g   -Wno-error -o CMakeFiles/enet.dir/unix.c.o -c /home/nala/git/nxdb/client/Library/enet/unix.c",
+  "file": "/home/nala/git/nxdb/client/Library/enet/unix.c",
+  "output": "Library/enet/CMakeFiles/enet.dir/unix.c.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/enet",
+  "command": "/usr/bin/clang -DHAS_FCNTL=1 -DHAS_GETADDRINFO=1 -DHAS_GETHOSTBYADDR_R=1 -DHAS_GETHOSTBYNAME_R=1 -DHAS_GETNAMEINFO=1 -DHAS_INET_NTOP=1 -DHAS_INET_PTON=1 -DHAS_MSGHDR_FLAGS=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g   -Wno-error -o CMakeFiles/enet.dir/win32.c.o -c /home/nala/git/nxdb/client/Library/enet/win32.c",
+  "file": "/home/nala/git/nxdb/client/Library/enet/win32.c",
+  "output": "Library/enet/CMakeFiles/enet.dir/win32.c.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/penet",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -I/home/nala/git/nxdb/penet/Include -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/penet.dir/Source/pe/Enet/Channels.cpp.o -c /home/nala/git/nxdb/penet/Source/pe/Enet/Channels.cpp",
+  "file": "/home/nala/git/nxdb/penet/Source/pe/Enet/Channels.cpp",
+  "output": "penet/CMakeFiles/penet.dir/Source/pe/Enet/Channels.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/penet",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -I/home/nala/git/nxdb/penet/Include -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/penet.dir/Source/sead/math/seadQuat.cpp.o -c /home/nala/git/nxdb/penet/Source/sead/math/seadQuat.cpp",
+  "file": "/home/nala/git/nxdb/penet/Source/sead/math/seadQuat.cpp",
+  "output": "penet/CMakeFiles/penet.dir/Source/sead/math/seadQuat.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/LibNerve",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/Nerve.dir/Source/al/Nerve/NerveExecutor.cpp.o -c /home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveExecutor.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveExecutor.cpp",
+  "output": "Library/LibNerve/CMakeFiles/Nerve.dir/Source/al/Nerve/NerveExecutor.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/LibNerve",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/Nerve.dir/Source/al/Nerve/NerveKeeper.cpp.o -c /home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveKeeper.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveKeeper.cpp",
+  "output": "Library/LibNerve/CMakeFiles/Nerve.dir/Source/al/Nerve/NerveKeeper.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/LibNerve",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/Nerve.dir/Source/al/Nerve/NerveStateBase.cpp.o -c /home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveStateBase.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveStateBase.cpp",
+  "output": "Library/LibNerve/CMakeFiles/Nerve.dir/Source/al/Nerve/NerveStateBase.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/LibNerve",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/Nerve.dir/Source/al/Nerve/NerveStateCtrl.cpp.o -c /home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveStateCtrl.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveStateCtrl.cpp",
+  "output": "Library/LibNerve/CMakeFiles/Nerve.dir/Source/al/Nerve/NerveStateCtrl.cpp.o"
+},
+{
+  "directory": "/home/nala/git/nxdb/client/Build/Library/LibNerve",
+  "command": "/usr/bin/clang++  -I/home/nala/git/nxdb/client/Include -I/home/nala/git/nxdb/client/Library/enet/include -I/home/nala/git/nxdb/client/../penet/Include -I/home/nala/git/nxdb/client/Library/LibNerve/Include -I/home/nala/git/nxdb/client/Library/buddy_alloc -I/home/nala/git/nxdb/client/Library/json/include -I/home/nala/git/nxdb/client/Library/imgui -I/home/nala/git/nxdb/client/Library/imgui/backends -g -O0 -g3 -ggdb -std=gnu++20 -o CMakeFiles/Nerve.dir/Source/al/Nerve/NerveUtil.cpp.o -c /home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveUtil.cpp",
+  "file": "/home/nala/git/nxdb/client/Library/LibNerve/Source/al/Nerve/NerveUtil.cpp",
+  "output": "Library/LibNerve/CMakeFiles/Nerve.dir/Source/al/Nerve/NerveUtil.cpp.o"
+}
+]

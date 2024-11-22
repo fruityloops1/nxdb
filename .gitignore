@@ -1,0 +1,7 @@
+.cache/
+build/
+Build/
+*.elf
+*.npdm
+*.nso
+*.nsp

@@ -1,0 +1,36 @@
+cmake_minimum_required(VERSION 3.5)
+project(peepa-server)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -O0 -g3 -ggdb")
+
+include_directories(Include)
+include_directories(${PROJECT_SOURCE_DIR}/Library/enet/include)
+#include_directories(${PROJECT_SOURCE_DIR}/Library/penet/Include)
+include_directories(${PROJECT_SOURCE_DIR}/../penet/Include)
+include_directories(${PROJECT_SOURCE_DIR}/Library/LibNerve/Include)
+include_directories(${PROJECT_SOURCE_DIR}/Library/buddy_alloc)
+include_directories(${PROJECT_SOURCE_DIR}/Library/json/include)
+include_directories(${PROJECT_SOURCE_DIR}/Library/imgui)
+include_directories(${PROJECT_SOURCE_DIR}/Library/imgui/backends)
+
+add_subdirectory(${PROJECT_SOURCE_DIR}/Library/enet)
+#add_subdirectory(${PROJECT_SOURCE_DIR}/Library/penet)
+add_subdirectory(${PROJECT_SOURCE_DIR}/../penet ${CMAKE_CURRENT_BINARY_DIR}/penet)
+add_subdirectory(${PROJECT_SOURCE_DIR}/Library/LibNerve)
+add_subdirectory(${PROJECT_SOURCE_DIR}/Library/json)
+
+file(GLOB_RECURSE SOURCES_CXX ${PROJECT_SOURCE_DIR}/Source/*.cpp)
+file(GLOB SOURCES_IMGUI ${PROJECT_SOURCE_DIR}/Library/imgui/*.cpp)
+
+add_executable(peepa-server ${SOURCES_CXX} ${SOURCES_IMGUI} ${PROJECT_SOURCE_DIR}/Library/imgui/backends/imgui_impl_opengl3.cpp)
+find_package(Threads REQUIRED)
+find_package(glfw3 REQUIRED)
+find_package(OpenGL REQUIRED)
+target_link_libraries(peepa-server PUBLIC enet penet Nerve nlohmann_json)
+target_link_libraries(peepa-server PRIVATE Threads::Threads glfw OpenGL::GL)
+if(WIN32)
+  target_link_libraries(peepa-server PRIVATE wsock32 ws2_32 winmm)
+endif()
