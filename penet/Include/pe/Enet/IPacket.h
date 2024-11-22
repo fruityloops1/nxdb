@@ -3,15 +3,16 @@
 #include "pe/Enet/Types.h"
 
 namespace pe {
-namespace enet {
+    namespace enet {
 
-    class IPacket {
-    public:
-        virtual ~IPacket() { }
-        virtual size_t calcSize() const = 0;
-        virtual void build(void* outData) const = 0;
-        virtual void read(const void* data, size_t len) = 0;
-    };
+        class IPacket {
+        public:
+            virtual ~IPacket() { }
+            virtual size_t calcSize() const = 0;
+            virtual size_t calcBufSize() const { return calcSize(); }
+            virtual void build(void* outData) const = 0;
+            virtual void read(const void* data, size_t len) = 0;
+        };
 
-} // namespace enet
+    } // namespace enet
 } // namespace pe

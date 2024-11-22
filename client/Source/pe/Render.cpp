@@ -1,8 +1,13 @@
 #include "pe/Render.h"
 
 #include "imgui.h"
+#include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
+#include "pe/Enet/Hash.h"
+#include "pe/Enet/Packets/ImGuiDrawDataPacket.h"
+#include "pe/Util.h"
 #include <chrono>
+#include <cstdio>
 #include <cstdlib>
 #include <stdio.h>
 #include <thread>
@@ -37,8 +42,72 @@ namespace pe {
 
         ImGui::StyleColorsDark();
 
+        // ImGui_ImplGlfw_InitForOpenGL(window, true);
         ImGui_ImplOpenGL3_Init(glsl_version);
+
+        /*while (!glfwWindowShouldClose(window)) {
+
+            glfwPollEvents();
+            if (glfwGetWindowAttrib(window, GLFW_ICONIFIED) != 0) {
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+                return;
+            }
+
+            ImGui_ImplOpenGL3_NewFrame();
+            ImGui_ImplGlfw_NewFrame();
+            ImGui::NewFrame();
+
+            ImGui::ShowDemoWindow();
+            ImGui::Render();
+
+            pe::enet::ImGuiDrawDataPacket packet(ImGui::GetDrawData());
+            void* datsdfa = malloc(packet.calcSize());
+            packet.build(datsdfa);
+            char name[32];
+            static int i = 0;
+            static std::vector<u32> hashes;
+            u32 hash = nxdb::util::hashMurmur((u8*)datsdfa, packet.calcSize());
+            bool exists = false;
+            for (int i = 0; i < hashes.size(); i++) {
+                if (hashes[i] == hash) {
+                    exists = true;
+                    break;
+                }
+            }
+
+            if (!exists) {
+                snprintf(name, sizeof(name), "fs/frame%d.bin", i++);
+                FILE* f = fopen(name, "wb");
+                fwrite(datsdfa, packet.calcSize(), 1, f);
+                fclose(f);
+                hashes.push_back(hash);
+            }
+            free(datsdfa);
+
+            ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+            glfwSwapBuffers(window);
+        }*/
     }
+
+    /*class Sex {
+    public:
+        Sex() {
+            {
+                IMGUI_CHECKVERSION();
+                ImGui::CreateContext();
+                ImGuiIO& io = ImGui::GetIO();
+                io.DisplaySize = { 1280, 720 };
+                io.DisplayFramebufferScale = { 1, 1 };
+                (void)io;
+                unsigned char* a;
+                int w, h;
+                io.Fonts->GetTexDataAsRGBA32(&a, &w, &h);
+            }
+
+            initWindow();
+        }
+    };
+    Sex sexdsf;*/
 
     void render(ImDrawData* data) {
         if (!inited) {
@@ -68,6 +137,22 @@ namespace pe {
 
         ImGui_ImplOpenGL3_RenderDrawData(data);
         glfwSwapBuffers(window);
+    }
+
+    static ZSTD_DDict* sDict = nullptr;
+    constexpr char sDictFile[] = "dictionary.zsdic";
+
+    ZSTD_DDict* getZstdDDict() {
+        if (sDict == nullptr) {
+            size_t dictSize;
+            printf("loading dictionary %s\n", sDictFile);
+
+            void* const dictBuffer = pe::readBytesFromFile(sDictFile, &dictSize);
+            sDict = ZSTD_createDDict(dictBuffer, dictSize);
+            assert(sDict != nullptr);
+            free(dictBuffer);
+        }
+        return sDict;
     }
 
 } // namespace pe

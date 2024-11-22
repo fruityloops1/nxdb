@@ -1,8 +1,10 @@
 #pragma once
 
 #include "imgui.h"
+#include "main.h"
 #include "pe/Enet/IPacket.h"
 #include "pe/Enet/Impls.h"
+#include "zstd.h"
 #include <cstring>
 #include <type_traits>
 
@@ -18,6 +20,7 @@ namespace pe::enet {
     class ImGuiDrawDataPacket : public IPacket {
         ImDrawData* mData = nullptr;
         bool mDataOwned = false;
+        size_t mCompressedSize = 0;
 
         void destroy() {
             for (ImDrawList* list : mData->CmdLists)
@@ -32,13 +35,15 @@ namespace pe::enet {
             , mDataOwned(false) { }
 
         struct __attribute__((packed)) Header {
-            int Length;
             int CmdListsCount;
             int TotalVtxCount;
             int TotalIdxCount;
         };
 
         size_t calcSize() const override {
+            if (mCompressedSize)
+                return mCompressedSize;
+
             size_t packetSize = 0;
 
             packetSize += sizeof(Header);
@@ -55,11 +60,19 @@ namespace pe::enet {
             return packetSize;
         }
 
+        size_t calcBufSize() const override {
+            return ZSTD_compressBound(calcSize());
+        }
+
         void build(void* outData) const override {
+            const size_t packetSize = calcSize();
+            const size_t bufSize = calcBufSize();
+            void* buf = buddyMalloc(packetSize);
+
             uintptr_t cursor = 0;
 
             const auto getDataAtCursor = [&]<typename Type>(Type) {
-                return reinterpret_cast<Type*>(uintptr_t(outData) + cursor);
+                return reinterpret_cast<Type*>(uintptr_t(buf) + cursor);
             };
             const auto write = [&]<typename WriteType>(const WriteType& value) {
                 std::memcpy(getDataAtCursor(WriteType()), &value, sizeof(WriteType));
@@ -67,7 +80,7 @@ namespace pe::enet {
             };
 
             Header header {
-                static_cast<int>(calcSize()), mData->CmdListsCount, mData->TotalVtxCount, mData->TotalIdxCount
+                mData->CmdListsCount, mData->TotalVtxCount, mData->TotalIdxCount
             };
 
             write(header);
@@ -89,13 +102,46 @@ namespace pe::enet {
                 std::memcpy(getDataAtCursor(ImDrawIdx()), cmdList->IdxBuffer.Data, sizeof(ImDrawIdx) * cmdList->IdxBuffer.size());
                 cursor += sizeof(ImDrawIdx) * cmdList->IdxBuffer.size();
             }
+
+            auto* cdict = PENET_GET_ZSTD_CDICT(); // HEREREKSJFHDSKJF
+            ZSTD_CCtx* cctx = ZSTD_createCCtx();
+            IM_ASSERT(cctx != nullptr);
+            const size_t cSize = ZSTD_compress_usingCDict(cctx, outData, bufSize, buf, packetSize, cdict);
         }
 
         void read(const void* data, size_t len) override {
+            auto* dict = PENET_GET_ZSTD_DDICT();
+            size_t bufSize = ZSTD_getFrameContentSize(data, len);
+            if (bufSize == ZSTD_CONTENTSIZE_ERROR or bufSize == ZSTD_CONTENTSIZE_UNKNOWN) {
+                PENET_WARN("Corrupted packet: not zstd (%zu)", bufSize);
+                return;
+            }
+
+            void* buf = buddyMalloc(bufSize);
+            const unsigned expectedDictID = ZSTD_getDictID_fromDDict(dict);
+            const unsigned actualDictID = ZSTD_getDictID_fromFrame(data, len);
+            if (actualDictID != expectedDictID) {
+                PENET_WARN("Corrupted packet: dict doesnt fit (%d != %d)", expectedDictID, actualDictID);
+                buddyFree(buf);
+                return;
+            }
+
+            ZSTD_DCtx* dctx = ZSTD_createDCtx();
+            IM_ASSERT(dctx != nullptr);
+            const size_t dSize = ZSTD_decompress_usingDDict(dctx, buf, bufSize, data, len, dict);
+
+            if (dSize != bufSize) {
+                PENET_WARN("Corrupted packet: wrong decompressed size (%zu != %zu)", dSize, bufSize);
+                ZSTD_freeDCtx(dctx);
+                buddyFree(buf);
+                return;
+            }
+
+            ZSTD_freeDCtx(dctx);
 
             uintptr_t cursor = 0;
             const auto getDataAtCursor = [&]<typename Type>(Type) {
-                return reinterpret_cast<Type*>(uintptr_t(data) + cursor);
+                return reinterpret_cast<Type*>(uintptr_t(buf) + cursor);
             };
             const auto read = [&]<typename ReadType>(ReadType) -> ReadType {
                 ReadType instance;
@@ -105,11 +151,6 @@ namespace pe::enet {
             };
 
             const Header header = read(Header());
-
-            if (header.Length != len) {
-                PENET_WARN("Corrupted packet %d!=%zu\n", header.Length, len);
-                return;
-            }
 
             if (mData == nullptr) {
                 mData = new ImDrawData;
@@ -152,12 +193,14 @@ namespace pe::enet {
                 cursor += sizeof(ImDrawIdx) * idxBufferSize;
             }
 
-            if (cursor != len) {
+            if (cursor != bufSize) {
                 // PENET_ABORT("kys %zu %zu", cursor, len);
-                PENET_WARN("Corrupted packet %zu!=%zu\n", cursor, len);
+                PENET_WARN("Corrupted packet %zu!=%zu\n", cursor, bufSize);
                 destroy();
                 mData = nullptr;
             }
+
+            buddyFree(buf);
         }
 
         ~ImGuiDrawDataPacket() {

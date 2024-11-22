@@ -4,6 +4,7 @@
 #include "enet/enet.h"
 #include "enet/list.h"
 #include "pe/Enet/Channels.h"
+#include "pe/Enet/Hash.h"
 #include "pe/Enet/PacketHandler.h"
 #include <chrono>
 #include <cmath>
@@ -71,14 +72,14 @@ namespace pe {
 
             if (mServerPeer->state != ENET_PEER_STATE_CONNECTED)
                 return;
-            size_t len = packet->calcSize();
-            void* buf = buddyMalloc(len);
+            size_t bufSize = packet->calcBufSize();
+            void* buf = buddyMalloc(bufSize);
             packet->build(buf);
 
             // ENET_PACKET_FLAG_NO_ALLOCATE is FUCKING broken dont use it
             mClientCS.lock();
 
-            ENetPacket* pak = enet_packet_create(buf, len, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
+            ENetPacket* pak = enet_packet_create(buf, packet->calcSize(), reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
             ChannelType type = identifyType(packet);
             enet_peer_send(mServerPeer, (int)type, pak);
             mPacketHandler->increaseSentPacketCount(type);
@@ -205,7 +206,15 @@ namespace pe {
                         printf("Invalid packet type %d\n", event.channelID);
                         break;
                     }
-                    mPacketHandler->handlePacket((ChannelType)event.channelID, event.packet->data, event.packet->dataLength);
+
+                    u32 hash = nxdb::util::hashMurmur(event.packet->data + sizeof(u32), event.packet->dataLength - sizeof(u32));
+                    u32 wantedHash = *reinterpret_cast<u32*>(event.packet->data);
+
+                    if (hash != wantedHash) {
+                        PENET_WARN("Dropped packet (corrupted) %x != %x", hash, wantedHash);
+                    } else
+                        mPacketHandler->handlePacket((ChannelType)event.channelID, event.packet->data + sizeof(u32), event.packet->dataLength - sizeof(u32));
+
                     enet_packet_destroy(event.packet);
                     break;
                 }

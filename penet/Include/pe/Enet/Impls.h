@@ -17,6 +17,7 @@ extern "C" {
 #define PENET_FREE(PTR) free(PTR)
 #else
 #include "main.h"
+#include "pe/Render.h"
 #include <cstdio>
 #include <cstdlib>
 #define PENET_MALLOC(SIZE) buddyMalloc(SIZE)
@@ -29,4 +30,6 @@ extern "C" {
     }
 #define PENET_WARN(FMT, ...) \
     { fprintf(stdout, FMT, __VA_ARGS__); }
+#define PENET_GET_ZSTD_DDICT() ::pe::getZstdDDict()
+#define PENET_GET_ZSTD_CDICT() ::pe::getZstdCDict()
 #endif

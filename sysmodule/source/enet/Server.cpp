@@ -4,6 +4,7 @@
 #include "al/Nerve/NerveUtil.h"
 #include "enet/enet.h"
 #include "pe/Enet/Channels.h"
+#include "pe/Enet/Hash.h"
 #include <algorithm>
 #include <chrono>
 #include <cstring>
@@ -40,15 +41,16 @@ namespace pe {
 
         void Server::sendPacketToAll(IPacket* packet, bool reliable) {
             size_t len = packet->calcSize();
-            u8* buf = new u8[len];
-            packet->build(buf);
+            u8* buf = new u8[len + sizeof(u32)];
+            packet->build(buf + sizeof(u32));
+            *reinterpret_cast<u32*>(buf) = nxdb::util::hashMurmur(buf + sizeof(u32), len);
 
             u32 flags = ENET_PACKET_FLAG_NO_ALLOCATE;
             if (reliable)
                 flags |= ENET_PACKET_FLAG_RELIABLE;
 
             mEnetMutex.lock();
-            ENetPacket* pak = enet_packet_create(buf, len, flags);
+            ENetPacket* pak = enet_packet_create(buf, len + sizeof(u32), flags);
             ChannelType channel = identifyType(packet);
             for (int i = 0; i < mServer->peerCount; i++)
                 mPacketHandler.increaseSentPacketCount(channel);
