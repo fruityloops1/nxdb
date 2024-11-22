@@ -5,3 +5,4 @@ Build/
 *.npdm
 *.nso
 *.nsp
+compile_commands.json
