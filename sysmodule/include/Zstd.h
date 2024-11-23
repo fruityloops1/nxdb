@@ -1,12 +1,10 @@
 #pragma once
 
-#include "imgui.h"
 #include "zstd.h"
 
-namespace pe {
+namespace nxdb {
 
-    void render(ImDrawData* data);
     ZSTD_DDict* getZstdDDict();
     ZSTD_CDict* getZstdCDict();
 
-} // namespace pesDictFile
+} // namespace nxdb

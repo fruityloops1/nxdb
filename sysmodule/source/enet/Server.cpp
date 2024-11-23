@@ -40,41 +40,23 @@ namespace pe {
         }
 
         void Server::sendPacketToAll(IPacket* packet, bool reliable) {
-            size_t len = packet->calcSize();
-            u8* buf = new u8[len + sizeof(u32)];
-            packet->build(buf + sizeof(u32));
-            *reinterpret_cast<u32*>(buf) = nxdb::util::hashMurmur(buf + sizeof(u32), len);
+            const size_t bufSize = packet->calcSize();
+
+            u8* buf = new u8[bufSize];
+            const size_t packetSize = packet->build(buf);
 
             u32 flags = ENET_PACKET_FLAG_NO_ALLOCATE;
             if (reliable)
                 flags |= ENET_PACKET_FLAG_RELIABLE;
 
             mEnetMutex.lock();
-            ENetPacket* pak = enet_packet_create(buf, len + sizeof(u32), flags);
+            ENetPacket* pak = enet_packet_create(buf, packetSize, flags);
             ChannelType channel = identifyType(packet);
             for (int i = 0; i < mServer->peerCount; i++)
                 mPacketHandler.increaseSentPacketCount(channel);
 
             enet_host_broadcast(mServer, (int)channel, pak);
             mEnetMutex.unlock();
-            delete[] buf;
-        }
-
-        void Server::sendPacketToAllExcept(Client* except, IPacket* packet, bool reliable) {
-            size_t len = packet->calcSize();
-            u8* buf = new u8[len];
-            packet->build(buf);
-
-            mEnetMutex.lock();
-            ENetPacket* pak = enet_packet_create(buf, len, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
-            for (auto& entry : mClients)
-                if (&entry.second != except) {
-                    ChannelType channel = identifyType(packet);
-                    mPacketHandler.increaseSentPacketCount(channel);
-                    enet_peer_send(entry.second.getPeer(), (int)channel, pak);
-                }
-            mEnetMutex.unlock();
-
             delete[] buf;
         }
 

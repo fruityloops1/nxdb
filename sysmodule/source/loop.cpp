@@ -6,12 +6,14 @@
 #include "imgui_internal.h"
 #include "pe/Enet/Packets/DataPackets.h"
 #include "pe/Enet/Packets/ImGuiDrawDataPacket.h"
-#include "switch/arm/counter.h"
-#include "switch/kernel/svc.h"
+#include <cmath>
 #include <stdlib.h>
 
 extern "C" {
+#include "switch/arm/counter.h"
+#include "switch/kernel/svc.h"
 #include "switch/runtime/diag.h"
+#include "switch/services/hid.h"
 }
 
 #include "imgui.h"
@@ -23,14 +25,47 @@ static void no_memory() {
     diagAbortWithResult(0x0);
 }
 
-constexpr u64 sFrameRate = 15;
+constexpr u64 sFrameRate = 60;
 const u64 sFrameTimeTicks = (1.0 / sFrameRate) * armGetSystemTickFreq();
 
+float a = 0.0f;
+
 void render() {
+
+    HidMouseState mouseState { 0 };
+    hidGetMouseStates(&mouseState, 1);
+    ImGuiIO& io = ImGui::GetIO();
+
+    float multiplier = io.DisplaySize.x / 1280.f;
+    io.AddMousePosEvent(mouseState.x * multiplier, mouseState.y * multiplier);
+    if (mouseState.wheel_delta_x != 0)
+        io.AddMouseWheelEvent(0.0f, mouseState.wheel_delta_x > 0 ? 5 : -5);
+
+    constexpr int mouse_mapping[][2] = {
+        { ImGuiMouseButton_Left, static_cast<const int>(HidMouseButton_Left) },
+        { ImGuiMouseButton_Right, static_cast<const int>(HidMouseButton_Right) },
+        { ImGuiMouseButton_Middle, static_cast<const int>(HidMouseButton_Middle) },
+    };
+
+    static u32 sLastMouseButtons = 0;
+
+    for (auto [im_k, nx_k] : mouse_mapping) {
+        if (mouseState.buttons & nx_k)
+            io.AddMouseButtonEvent((ImGuiMouseButton)im_k, true);
+        else if (sLastMouseButtons & nx_k)
+            io.AddMouseButtonEvent((ImGuiMouseButton)im_k, false);
+    }
+
+    sLastMouseButtons = mouseState.buttons;
+
+    io.MouseDrawCursor = true;
+
     ImGui::NewFrame();
 
     // ImGui::ShowDemoWindow();
     ImGui::ShowDemoWindow();
+    ImGui::GetForegroundDrawList()->AddRectFilled({ 0, 200 }, { 200, 200 + (sinf(a) + 1) * 100.0f }, IM_COL32(255, 0, 0, 255));
+    a += 0.1f;
 
     ImGui::Render();
     ImDrawData* data = ImGui::GetDrawData();
@@ -47,6 +82,7 @@ void render() {
 
 void shit() {
 
+    hidInitializeMouse();
     const ENetCallbacks callbacks { malloc, free, no_memory };
     if (enet_initialize_with_callbacks(ENET_VERSION, &callbacks) != 0) {
         nxdb::log("ENet initialize failed", 0);
@@ -85,7 +121,9 @@ void shit() {
         render();
 
         u64 diff = armGetSystemTick() - lastFrame;
-        svcSleepThread(armTicksToNs(sFrameTimeTicks - diff));
+        u64 ns = armTicksToNs(sFrameTimeTicks - diff);
+        if (ns < 1e+9)
+            svcSleepThread(ns);
         lastFrame = armGetSystemTick();
     }
 }

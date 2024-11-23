@@ -1,7 +1,6 @@
 #pragma once
 
 #include "imgui.h"
-#include "main.h"
 #include "pe/Enet/IPacket.h"
 #include "pe/Enet/Impls.h"
 #include "zstd.h"
@@ -20,7 +19,6 @@ namespace pe::enet {
     class ImGuiDrawDataPacket : public IPacket {
         ImDrawData* mData = nullptr;
         bool mDataOwned = false;
-        size_t mCompressedSize = 0;
 
         void destroy() {
             for (ImDrawList* list : mData->CmdLists)
@@ -40,10 +38,7 @@ namespace pe::enet {
             int TotalIdxCount;
         };
 
-        size_t calcSize() const override {
-            if (mCompressedSize)
-                return mCompressedSize;
-
+        size_t calcDataSize() const {
             size_t packetSize = 0;
 
             packetSize += sizeof(Header);
@@ -60,14 +55,12 @@ namespace pe::enet {
             return packetSize;
         }
 
-        size_t calcBufSize() const override {
-            return ZSTD_compressBound(calcSize());
-        }
+        size_t calcSize() const override { return ZSTD_compressBound(calcDataSize()); }
 
-        void build(void* outData) const override {
-            const size_t packetSize = calcSize();
-            const size_t bufSize = calcBufSize();
-            void* buf = buddyMalloc(packetSize);
+        size_t build(void* outData) const override {
+            const size_t packetSize = calcDataSize();
+            const size_t bufSize = calcSize();
+            void* buf = PENET_MALLOC(packetSize);
 
             uintptr_t cursor = 0;
 
@@ -103,37 +96,46 @@ namespace pe::enet {
                 cursor += sizeof(ImDrawIdx) * cmdList->IdxBuffer.size();
             }
 
-            auto* cdict = PENET_GET_ZSTD_CDICT(); // HEREREKSJFHDSKJF
-            ZSTD_CCtx* cctx = ZSTD_createCCtx();
-            IM_ASSERT(cctx != nullptr);
-            const size_t cSize = ZSTD_compress_usingCDict(cctx, outData, bufSize, buf, packetSize, cdict);
+            // auto* cdict = PENET_GET_ZSTD_CDICT();
+            // ZSTD_CCtx* cctx = ZSTD_createCCtx();
+            // IM_ASSERT(cctx != nullptr);
+
+            // const size_t compressedSize = ZSTD_compress_usingCDict(cctx, outData, bufSize, buf, packetSize, cdict);
+            const size_t compressedSize = ZSTD_compress(outData, bufSize, buf, packetSize, 1);
+
+            // ZSTD_freeCCtx(cctx);
+            PENET_FREE(buf);
+            PENET_WARN("compressedSize: %zu", compressedSize);
+            return compressedSize;
         }
 
         void read(const void* data, size_t len) override {
             auto* dict = PENET_GET_ZSTD_DDICT();
             size_t bufSize = ZSTD_getFrameContentSize(data, len);
+            PENET_WARN("Size: %zu", bufSize);
             if (bufSize == ZSTD_CONTENTSIZE_ERROR or bufSize == ZSTD_CONTENTSIZE_UNKNOWN) {
                 PENET_WARN("Corrupted packet: not zstd (%zu)", bufSize);
                 return;
             }
 
-            void* buf = buddyMalloc(bufSize);
-            const unsigned expectedDictID = ZSTD_getDictID_fromDDict(dict);
+            void* buf = PENET_MALLOC(bufSize);
+            /*const unsigned expectedDictID = ZSTD_getDictID_fromDDict(dict);
             const unsigned actualDictID = ZSTD_getDictID_fromFrame(data, len);
             if (actualDictID != expectedDictID) {
                 PENET_WARN("Corrupted packet: dict doesnt fit (%d != %d)", expectedDictID, actualDictID);
-                buddyFree(buf);
+                PENET_FREE(buf);
                 return;
-            }
+            }*/
 
             ZSTD_DCtx* dctx = ZSTD_createDCtx();
             IM_ASSERT(dctx != nullptr);
-            const size_t dSize = ZSTD_decompress_usingDDict(dctx, buf, bufSize, data, len, dict);
+            // const size_t dSize = ZSTD_decompress_usingDDict(dctx, buf, bufSize, data, len, dict);
+            const size_t dSize = ZSTD_decompress(buf, bufSize, data, len);
 
             if (dSize != bufSize) {
                 PENET_WARN("Corrupted packet: wrong decompressed size (%zu != %zu)", dSize, bufSize);
                 ZSTD_freeDCtx(dctx);
-                buddyFree(buf);
+                PENET_FREE(buf);
                 return;
             }
 
@@ -195,12 +197,12 @@ namespace pe::enet {
 
             if (cursor != bufSize) {
                 // PENET_ABORT("kys %zu %zu", cursor, len);
-                PENET_WARN("Corrupted packet %zu!=%zu\n", cursor, bufSize);
+                PENET_WARN("Corrupted packet %zu!=%zu", cursor, bufSize);
                 destroy();
                 mData = nullptr;
             }
 
-            buddyFree(buf);
+            PENET_FREE(buf);
         }
 
         ~ImGuiDrawDataPacket() {

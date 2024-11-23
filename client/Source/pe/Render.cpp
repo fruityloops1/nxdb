@@ -139,20 +139,33 @@ namespace pe {
         glfwSwapBuffers(window);
     }
 
-    static ZSTD_DDict* sDict = nullptr;
+    static ZSTD_DDict* sDDict = nullptr;
+    static ZSTD_CDict* sCDict = nullptr;
     constexpr char sDictFile[] = "dictionary.zsdic";
 
     ZSTD_DDict* getZstdDDict() {
-        if (sDict == nullptr) {
+        if (sDDict == nullptr) {
             size_t dictSize;
             printf("loading dictionary %s\n", sDictFile);
 
             void* const dictBuffer = pe::readBytesFromFile(sDictFile, &dictSize);
-            sDict = ZSTD_createDDict(dictBuffer, dictSize);
-            assert(sDict != nullptr);
+            sDDict = ZSTD_createDDict(dictBuffer, dictSize);
+            assert(sDDict != nullptr);
             free(dictBuffer);
         }
-        return sDict;
+        return sDDict;
+    }
+
+    ZSTD_CDict* getZstdCDict() {
+        if (sCDict == nullptr) {
+            size_t dictSize;
+            printf("loading dictionary %s\n", sDictFile);
+            void* const dictBuffer = readBytesFromFile(sDictFile, &dictSize);
+            sCDict = ZSTD_createCDict(dictBuffer, dictSize, 3);
+            assert(sCDict != nullptr);
+            free(dictBuffer);
+        }
+        return sCDict;
     }
 
 } // namespace pe

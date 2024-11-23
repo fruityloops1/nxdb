@@ -72,14 +72,14 @@ namespace pe {
 
             if (mServerPeer->state != ENET_PEER_STATE_CONNECTED)
                 return;
-            size_t bufSize = packet->calcBufSize();
+            size_t bufSize = packet->calcSize();
             void* buf = buddyMalloc(bufSize);
-            packet->build(buf);
+            size_t packetSize = packet->build(buf);
 
             // ENET_PACKET_FLAG_NO_ALLOCATE is FUCKING broken dont use it
             mClientCS.lock();
 
-            ENetPacket* pak = enet_packet_create(buf, packet->calcSize(), reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
+            ENetPacket* pak = enet_packet_create(buf, packetSize, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
             ChannelType type = identifyType(packet);
             enet_peer_send(mServerPeer, (int)type, pak);
             mPacketHandler->increaseSentPacketCount(type);
@@ -207,13 +207,7 @@ namespace pe {
                         break;
                     }
 
-                    u32 hash = nxdb::util::hashMurmur(event.packet->data + sizeof(u32), event.packet->dataLength - sizeof(u32));
-                    u32 wantedHash = *reinterpret_cast<u32*>(event.packet->data);
-
-                    if (hash != wantedHash) {
-                        PENET_WARN("Dropped packet (corrupted) %x != %x", hash, wantedHash);
-                    } else
-                        mPacketHandler->handlePacket((ChannelType)event.channelID, event.packet->data + sizeof(u32), event.packet->dataLength - sizeof(u32));
+                    mPacketHandler->handlePacket((ChannelType)event.channelID, event.packet->data, event.packet->dataLength);
 
                     enet_packet_destroy(event.packet);
                     break;

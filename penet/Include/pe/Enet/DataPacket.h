@@ -23,9 +23,10 @@ namespace pe {
                 return getSize();
             }
 
-            void build(void* outData) const override {
+            size_t build(void* outData) const override {
                 if (getSize())
                     std::memcpy(outData, getData(), getSize());
+                return getSize();
             }
 
             void read(const void* data, size_t len) override {

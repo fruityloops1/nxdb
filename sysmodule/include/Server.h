@@ -37,7 +37,6 @@ namespace pe {
             void exeService();
 
             void sendPacketToAll(IPacket* packet, bool reliable = true);
-            void sendPacketToAllExcept(Client* except, IPacket* packet, bool reliable = true);
 
             void start();
             int join() {

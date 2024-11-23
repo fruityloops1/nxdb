@@ -25,6 +25,7 @@ add_subdirectory(${PROJECT_SOURCE_DIR}/Library/LibNerve)
 file(GLOB_RECURSE SOURCES_CXX ${PROJECT_SOURCE_DIR}/Source/*.cpp)
 file(GLOB SOURCES_IMGUI ${PROJECT_SOURCE_DIR}/Library/imgui/*.cpp)
 file(GLOB SOURCES_ZSTD ${PROJECT_SOURCE_DIR}/Library/zstd/lib/common/*.c)
+file(GLOB SOURCES_ZSTD_COMPRESS ${PROJECT_SOURCE_DIR}/Library/zstd/lib/compress/*.c)
 file(GLOB SOURCES_ZSTD_DECOMPRESS ${PROJECT_SOURCE_DIR}/Library/zstd/lib/decompress/*.c)
 file(GLOB SOURCES_ZSTD_DECOMPRESS_ASM ${PROJECT_SOURCE_DIR}/Library/zstd/lib/decompress/*.S)
 
@@ -34,6 +35,7 @@ add_executable(peepa-server
   ${PROJECT_SOURCE_DIR}/Library/imgui/backends/imgui_impl_opengl3.cpp
   ${PROJECT_SOURCE_DIR}/Library/imgui/backends/imgui_impl_glfw.cpp
   ${SOURCES_ZSTD}
+  ${SOURCES_ZSTD_COMPRESS}
   ${SOURCES_ZSTD_DECOMPRESS}
   ${SOURCES_ZSTD_DECOMPRESS_ASM}
   )
