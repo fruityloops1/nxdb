@@ -18,7 +18,7 @@ namespace pe {
         class NetClient : public al::NerveExecutor {
             bool mIsDead = false;
             ENetHost* mClient = nullptr;
-            std::mutex mClientCS;
+            std::recursive_mutex mClientCS;
             std::thread mThread;
             ENetPeer* mServerPeer = nullptr;
             const char* mIp = nullptr;
@@ -47,7 +47,7 @@ namespace pe {
                 packet.data = data;
                 packet.requestId = pe::getRandom() >> 32;
 
-                RequestMgr::instance().registerEntry({packet.requestId, new RequestFunctor<typename Request::ResponseType, decltype(callback)>(callback)});
+                RequestMgr::instance().registerEntry(packet.requestId, new RequestFunctor<typename Request::ResponseType, decltype(callback)>(callback));
 
                 sendPacket(&packet, true);
             }

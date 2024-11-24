@@ -1,4 +1,5 @@
 #include "ProjectPacketHandler.h"
+#include "DebuggingSession.h"
 #include "LogServer.h"
 #include "Server.h"
 #include "pe/Enet/Channels.h"
@@ -31,6 +32,10 @@ namespace pe {
                 (PacketHandler<Client>::HandlePacketType)Handlers::handleGreet },
             { ChannelType::ProcessListReq,
                 (PacketHandler<Client>::HandlePacketType)ProcessList::handleRequest<Client> },
+            { ChannelType::StartDebuggingReq,
+                (PacketHandler<Client>::HandlePacketType)StartDebugging::handleRequest<Client> },
+            { ChannelType::GetDebuggingSessionInfoReq,
+                (PacketHandler<Client>::HandlePacketType)GetDebuggingSessionInfo::handleRequest<Client> },
         };
 
         ProjectPacketHandler::ProjectPacketHandler()
@@ -57,7 +62,7 @@ namespace pe {
 
             if (false) {
                 R_ABORT_UNLESS(svcGetProcessList(&numPids, pids, sMaxPids));
-            } else { // ^ this shit doesnt work and the result code doesnt possibly make any sense so complain to me about the following shitty code
+            } else { // ^ this shit doesnt work and the result code cant possibly make any sense so complain to me about the following shitty code
                 constexpr int sMaxPidSearchRange = 0x1000;
                 for (int i = 0; i < sMaxPidSearchRange; i++) {
                     u64 programId;
@@ -88,6 +93,57 @@ namespace pe {
                 }
             }
             nxdb::log("sending process list %d", numPids);
+
+            client->sendPacket(&packet);
+        }
+
+        void StartDebugging_::handleRequest(Request* req, Client* client, u32 requestId) {
+            u64 sessionId = nxdb::DebuggingSessionMgr::instance().registerNew(req->processIdToDebug, client);
+
+            StartDebugging::ResponsePacketType packet(requestId);
+            nxdb::log("got requestid %x", requestId);
+            auto& res = packet.data;
+
+            res.sessionId = sessionId;
+            nxdb::log("new sesssion id returned as %zu", res.sessionId);
+
+            client->sendPacket(&packet);
+        }
+
+        void GetDebuggingSessionInfo_::handleRequest(Request* req, Client* client, u32 requestId) {
+            auto* session = nxdb::DebuggingSessionMgr::instance().getById(req->sessionId);
+
+            nxdb::log("getdebug shit %zu", req->sessionId);
+
+            GetDebuggingSessionInfo::ResponsePacketType packet(requestId);
+            auto& res = packet.data;
+
+            if (session == nullptr) {
+                res.programId = 0x0;
+            } else {
+                res.programId = session->mProgramId;
+                res.processId = session->mProcessId;
+                std::memcpy(res.processName, session->mName, sizeof(res.processName));
+                res.numModules = session->mNumModules;
+
+                u16 stringTableOffset = 0;
+                for (int i = 0; i < session->mNumModules; i++) {
+                    auto& dst = res.modules[i];
+                    auto& src = session->mModules[i];
+
+                    dst.base = src.base;
+                    dst.size = src.size;
+
+                    size_t strSize = std::strlen(src.mod0Name) + sizeof('\0');
+
+                    if (stringTableOffset + strSize < sizeof(res.moduleNameStringTable)) {
+                        std::memcpy(res.moduleNameStringTable + stringTableOffset, src.mod0Name, strSize);
+
+                        dst.nameOffsetIntoStringTable = stringTableOffset;
+                        stringTableOffset += strSize;
+                    }
+                }
+            }
 
             client->sendPacket(&packet);
         }

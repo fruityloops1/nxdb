@@ -3,7 +3,7 @@
 #include "DataPacket.h"
 #include "Types.h"
 #include "pe/Enet/DataPacket.h"
-#include <vector>
+#include <unordered_map>
 
 namespace pe {
     namespace enet {
@@ -27,14 +27,10 @@ namespace pe {
         };
 
         class RequestMgr {
-            struct Entry {
-                u32 requestId = 0;
-                IRequestFunctor* responseCallback = nullptr;
-            };
-            std::vector<Entry> mEntries;
+            std::unordered_map<u32, IRequestFunctor*> mEntries;
 
         public:
-            void registerEntry(const Entry& entry) { mEntries.push_back(entry); }
+            void registerEntry(u32 requestId, IRequestFunctor* callback);
             bool findAndCallEntry(u32 requestId, void* requestData);
 
             static RequestMgr& instance();
@@ -74,8 +70,8 @@ namespace pe {
 
 #define REQUEST_DEFINES(REQ)                 \
     using REQ = ::pe::enet::Request<REQ##_>; \
-    using ProcessListReq = REQ::Req;         \
-    using ProcessListRes = REQ::Res;
+    using REQ##Req = REQ::Req;         \
+    using REQ##Res = REQ::Res;
 
     } // namespace enet
 } // namespace pe

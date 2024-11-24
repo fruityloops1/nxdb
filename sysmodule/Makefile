@@ -39,7 +39,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source lib/enet lib/LibNerve/Source/al/Nerve source/enet source/log ../penet/Source/pe/Enet lib/zstd/lib/common lib/zstd/lib/compress lib/zstd/lib/decompress
+SOURCES		:=	source lib/enet lib/LibNerve/Source/al/Nerve source/enet source/log ../penet/Source/pe/Enet lib/zstd/lib/common lib/zstd/lib/compress lib/zstd/lib/decompress source/ams source/nxdb
 DATA        :=  data
 DEFINES     :=  -DDEBUG -DLOGGING -DHAS_SOCKLEN_T -DLIBNX
 

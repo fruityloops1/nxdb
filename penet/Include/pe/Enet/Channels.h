@@ -22,8 +22,13 @@ namespace pe {
 
 #define PENET_CHANNELS            \
     PENET_CHANNEL(ToS_Hello)      \
+    PENET_CHANNEL(Test)             \
     PENET_CHANNEL(ProcessListReq) \
-    PENET_CHANNEL(ProcessListRes)
+    PENET_CHANNEL(ProcessListRes) \
+    PENET_CHANNEL(StartDebuggingReq) \
+    PENET_CHANNEL(StartDebuggingRes) \
+    PENET_CHANNEL(GetDebuggingSessionInfoReq) \
+    PENET_CHANNEL(GetDebuggingSessionInfoRes) \
 
         /*
          *

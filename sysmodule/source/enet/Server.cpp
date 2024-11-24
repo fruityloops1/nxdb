@@ -7,6 +7,7 @@
 #include "pe/Enet/Hash.h"
 #include <algorithm>
 #include <chrono>
+#include <cstdio>
 #include <cstring>
 #include <mutex>
 #include <thread>
@@ -100,7 +101,7 @@ namespace pe {
             mEnetMutex.lock();
 
             ENetEvent event;
-            while (enet_host_service(mServer, &event, 0) > 0) {
+            while (enet_host_service(mServer, &event, 1000) > 0) {
                 switch (event.type) {
                 case ENET_EVENT_TYPE_CONNECT: {
                     ENetAddress addr = event.peer->address;

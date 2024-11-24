@@ -10,6 +10,7 @@ namespace pe {
         class Client;
 
         struct ToS_Hello : DataPacket<ToS_Hello> { };
+        struct Test : DataPacket<Test> { };
 
         struct ProcessList_ {
             constexpr static size_t sMaxPids = 0x50;
@@ -31,6 +32,44 @@ namespace pe {
         };
 
         REQUEST_DEFINES(ProcessList)
+
+        struct StartDebugging_ {
+            struct Request {
+                u64 processIdToDebug;
+            };
+            struct Response {
+                u64 sessionId;
+                char _[0x10];
+            };
+
+            static void handleRequest(Request* req, Client* client, u32 requestId);
+        };
+
+        REQUEST_DEFINES(StartDebugging)
+
+        struct GetDebuggingSessionInfo_ {
+            struct Request {
+                u64 sessionId;
+            };
+            struct Response {
+                struct Module {
+                    u64 base;
+                    u64 size;
+                    u16 nameOffsetIntoStringTable = -1;
+                } __attribute__((packed));
+
+                u64 processId;
+                u64 programId;
+                char processName[12] { 0 };
+                s8 numModules = 0;
+                Module modules[13];
+                char moduleNameStringTable[0x300];
+            };
+
+            static void handleRequest(Request* req, Client* client, u32 requestId);
+        };
+
+        REQUEST_DEFINES(GetDebuggingSessionInfo)
 
     } // namespace enet
 } // namespace pe

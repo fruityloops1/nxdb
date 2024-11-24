@@ -23,6 +23,7 @@ namespace pe {
         public:
             Client() { }
             Client(Server* parent, ENetPeer* peer);
+            ~Client();
 
             void sendPacket(IPacket* packet, bool reliable = true);
 

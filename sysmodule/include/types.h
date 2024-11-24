@@ -39,6 +39,8 @@ typedef size_t size;
 
 namespace nxdb {
 
+    using paddr = uintptr_t;
+
     namespace svc {
 
         enum ProcessExitReason : u32

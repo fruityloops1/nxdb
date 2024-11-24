@@ -7,9 +7,18 @@
 namespace pe {
     namespace enet {
 
+        static void handleShit(StartDebuggingRes* packet)
+        {
+            printf("dflkjsdflksdj %x %zu\n", packet->requestId, packet->data.sessionId);
+        }
+
         const static PacketHandler<void>::PacketHandlerEntry sEntries[] {
             { ChannelType::ProcessListRes,
                 (PacketHandler<void>::HandlePacketType)ProcessList::handleResponse },
+            { ChannelType::StartDebuggingRes,
+                (PacketHandler<void>::HandlePacketType)StartDebugging::handleResponse },
+            { ChannelType::GetDebuggingSessionInfoRes,
+                (PacketHandler<void>::HandlePacketType)GetDebuggingSessionInfo::handleResponse },
         };
 
         ProjectPacketHandler::ProjectPacketHandler()

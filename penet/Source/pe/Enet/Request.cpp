@@ -5,16 +5,20 @@ namespace pe {
         static RequestMgr sInstance;
         RequestMgr& RequestMgr::instance() { return sInstance; }
 
+        void RequestMgr::registerEntry(u32 requestId, IRequestFunctor* callback)
+        {
+            mEntries[requestId] = callback;
+        }
+
         bool RequestMgr::findAndCallEntry(u32 requestId, void* requestData)
         {
-            for (int i = 0; i < mEntries.size(); i++) {
-                auto& entry = mEntries[i];
-                if (entry.requestId == requestId) {
-                    entry.responseCallback->call(requestData);
-                    delete entry.responseCallback;
-                    mEntries.erase(mEntries.begin() + i);
-                    return true;
-                }
+            if (mEntries.contains(requestId))
+            {
+                auto* callback = mEntries[requestId];
+                callback->call(requestData);
+                mEntries.erase(requestId);
+                delete callback;
+                return true;
             }
             return false;
         }

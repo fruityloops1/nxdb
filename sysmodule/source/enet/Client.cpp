@@ -1,4 +1,5 @@
 #include "Client.h"
+#include "DebuggingSession.h"
 #include "Server.h"
 #include "enet/enet.h"
 #include "pe/Enet/Channels.h"
@@ -25,8 +26,8 @@ namespace pe {
             u32 flags = ENET_PACKET_FLAG_NO_ALLOCATE;
             if (reliable)
                 flags |= ENET_PACKET_FLAG_RELIABLE;
-            size_t bufSize = packet->calcSize();
-            u8* buf = new u8[bufSize];
+            size_t packetSize = packet->calcSize();
+            u8* buf = new u8[packetSize];
             size_t len = packet->build(buf);
 
             ENetPacket* pak = enet_packet_create(buf, len, flags);
@@ -35,6 +36,10 @@ namespace pe {
         }
 
         void Client::disconnect() {
+        }
+
+        Client::~Client() {
+            nxdb::DebuggingSessionMgr::instance().deleteOwnedBy(this);
         }
 
     } // namespace enet
