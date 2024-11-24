@@ -8,5 +8,5 @@ set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 include_directories(Include)
 
-file(GLOB_RECURSE SOURCES_CXX ${PROJECT_SOURCE_DIR}/Source/*.cpp)
+file(GLOB_RECURSE SOURCES_CXX ${PROJECT_SOURCE_DIR}/Source/*.cpp ${PROJECT_SOURCE_DIR}/Include/*.h)
 add_library(penet ${SOURCES_CXX})

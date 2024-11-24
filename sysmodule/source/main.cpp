@@ -1,17 +1,17 @@
 #include "LogServer.h"
 extern "C" {
-#include "services/capssc.h"
 #include "switch/kernel/event.h"
 #include "switch/kernel/svc.h"
 #include "switch/kernel/thread.h"
 #include "switch/result.h"
-#include "switch/runtime/devices/fs_dev.h"
 #include "switch/runtime/diag.h"
 #include "switch/runtime/pad.h"
 #include "switch/services/apm.h"
 #include "switch/services/applet.h"
+#include "switch/services/capssc.h"
 #include "switch/services/fs.h"
 #include "switch/services/hid.h"
+#include "switch/services/hidsys.h"
 #include "switch/services/nv.h"
 #include "switch/services/pm.h"
 #include "switch/services/set.h"
@@ -91,6 +91,10 @@ void __appInit(void) {
     if (R_FAILED(rc))
         diagAbortWithResult(MAKERESULT(Module_Libnx, LibnxError_ShouldNotHappen));
 
+    rc = pmshellInitialize();
+    if (R_FAILED(rc))
+        diagAbortWithResult(MAKERESULT(Module_Libnx, LibnxError_ShouldNotHappen));
+
     rc = fsInitialize();
     if (R_FAILED(rc))
         diagAbortWithResult(MAKERESULT(Module_Libnx, LibnxError_InitFail_FS));
@@ -110,6 +114,13 @@ void __appExit(void) {
     viExit();
     hidExit();
     pmdmntExit();
+    pmshellExit();
+    capsscExit();
+    spsmExit();
+    hidsysExit();
+    socketExit();
+    setExit();
+    setsysExit();
     fsdevUnmountAll();
     fsExit();
 }
@@ -125,11 +136,17 @@ extern "C" int main(int argc, char* argv[]) {
 
     for (int i = 0; i < 5; i++) {
         nxdb::LogServer::instance()->Poll();
-        nxdb::log("Waiting %d", i);
+        nxdb::log("Waiting %d/5", i + 1);
         sleep(1);
     }
 
     shit();
 
     return 0;
+}
+
+extern "C" void diagAbortWithResult(Result res) {
+    nxdb::log("diagAbortWithResult(0x%x)", res);
+    svcBreak(BreakReason_Panic, (uintptr_t)&res, sizeof(res));
+    __builtin_unreachable();
 }

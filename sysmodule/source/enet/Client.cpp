@@ -21,16 +21,17 @@ namespace pe {
         void Client::sendPacket(IPacket* packet, bool reliable) {
             if (mPeer->state != ENET_PEER_STATE_CONNECTED)
                 return;
-            size_t len = packet->calcSize();
-            u8* buf = new u8[len];
-            packet->build(buf);
 
-            ENetPacket* pak = enet_packet_create(buf, len, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
+            u32 flags = ENET_PACKET_FLAG_NO_ALLOCATE;
+            if (reliable)
+                flags |= ENET_PACKET_FLAG_RELIABLE;
+            size_t bufSize = packet->calcSize();
+            u8* buf = new u8[bufSize];
+            size_t len = packet->build(buf);
+
+            ENetPacket* pak = enet_packet_create(buf, len, flags);
             enet_peer_send(mPeer, (int)identifyType(packet), pak);
             delete[] buf;
-        }
-
-        void Client::handleGreet(ToS_Hello* packet) {
         }
 
         void Client::disconnect() {

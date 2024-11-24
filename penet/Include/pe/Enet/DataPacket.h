@@ -3,7 +3,6 @@
 #include "pe/Enet/IPacket.h"
 #include "pe/Enet/Impls.h"
 #include <cstring>
-#include <type_traits>
 
 namespace pe {
     namespace enet {

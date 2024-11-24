@@ -39,9 +39,9 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source lib/enet lib/LibNerve/Source/al/Nerve source/enet source/log lib/imgui ../penet/Source/pe/Enet lib/zstd/lib/common lib/zstd/lib/compress lib/zstd/lib/decompress
+SOURCES		:=	source lib/enet lib/LibNerve/Source/al/Nerve source/enet source/log ../penet/Source/pe/Enet lib/zstd/lib/common lib/zstd/lib/compress lib/zstd/lib/decompress
 DATA        :=  data
-DEFINES     :=  -DDEBUG -DLOGGING -DHAS_SOCKLEN_T -DLIBNX -DIMGUI_USER_CONFIG='"nxdb_imgui_config.h"' -DIMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS
+DEFINES     :=  -DDEBUG -DLOGGING -DHAS_SOCKLEN_T -DLIBNX
 
 #---------------------------------------------------------------------------------
 # options for code generation
@@ -94,7 +94,7 @@ export OFILES_SRC	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) $(SFILES:.s=.o)
 export OFILES	:=	$(OFILES_BIN) $(OFILES_SRC)
 
 export INCLUDE	:=	$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
-					-I$(CURDIR)/$(BUILD) -I$(CURDIR)/include -I$(CURDIR)/build -I$(CURDIR)/lib/enet/include -I$(CURDIR)/lib/LibNerve/Include -I$(CURDIR)/lib/zstd/lib -I$(CURDIR)/../penet/Include -I$(CURDIR)/lib/imgui -I$(DEVKITPRO)/libnx/include/switch
+					-I$(CURDIR)/$(BUILD) -I$(CURDIR)/include -I$(CURDIR)/build -I$(CURDIR)/lib/enet/include -I$(CURDIR)/lib/LibNerve/Include -I$(CURDIR)/lib/zstd/lib -I$(CURDIR)/../penet/Include -I$(DEVKITPRO)/libnx/include/switch
 
 export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 

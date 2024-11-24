@@ -3,10 +3,10 @@
 #include "pe/Enet/IPacket.h"
 #include "pe/Enet/Impls.h"
 #include "pe/Enet/Packets/DataPackets.h"
-#include "pe/Enet/Packets/ImGuiDrawDataPacket.h"
 #ifndef NNSDK
 #include <new>
 #endif
+#include <type_traits>
 
 namespace pe {
     namespace enet {
@@ -20,10 +20,10 @@ namespace pe {
         i++;                                                      \
     }
 
-#define PENET_CHANNELS       \
-    PENET_CHANNEL(ToS_Hello) \
-    PENET_CHANNEL(Test)      \
-    PENET_CHANNEL(ImGuiDrawDataPacket)
+#define PENET_CHANNELS            \
+    PENET_CHANNEL(ToS_Hello)      \
+    PENET_CHANNEL(ProcessListReq) \
+    PENET_CHANNEL(ProcessListRes)
 
         /*
          *

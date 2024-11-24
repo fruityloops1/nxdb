@@ -6,6 +6,8 @@
 #include <chrono>
 #include <mutex>
 #include <thread>
+#include "pe/Util.h"
+#include "pe/Enet/Request.h"
 
 namespace pe {
     namespace enet {
@@ -30,13 +32,25 @@ namespace pe {
 
         public:
             NetClient(PacketHandler<void>* handler);
-            void kill() { mIsDead = true; }
+            void kill();
 
             void connect(const char* ip, u16 port);
             bool isConnected() const;
             void disconnect();
 
             void sendPacket(const IPacket* packet, bool reliable = true);
+
+            template <typename Request, typename L>
+            void makeRequest(const typename Request::RequestType& data, L callback)
+            {
+                typename Request::RequestPacketType packet;
+                packet.data = data;
+                packet.requestId = pe::getRandom() >> 32;
+
+                RequestMgr::instance().registerEntry({packet.requestId, new RequestFunctor<typename Request::ResponseType, decltype(callback)>(callback)});
+
+                sendPacket(&packet, true);
+            }
 
             void flush() {
                 if (mClient)

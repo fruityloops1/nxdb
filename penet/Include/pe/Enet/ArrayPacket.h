@@ -49,12 +49,13 @@ namespace pe {
 
             size_t calcSize() const override { return sizeof(u32) + sizeof(T) * mNumEntries; }
 
-            void build(void* outData) const override {
+            size_t build(void* outData) const override {
                 if (mEntries == nullptr)
                     PENET_ABORT("pe::enet::ArrayPacket::build: mEntries == nullptr", 0);
 
                 *reinterpret_cast<u32*>(outData) = mNumEntries;
                 std::memcpy(reinterpret_cast<u8*>(outData) + sizeof(u32), mEntries, sizeof(T) * mNumEntries);
+                return ArrayPacket::calcSize();
             }
 
             void read(const void* data, size_t len) override {

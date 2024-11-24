@@ -30,7 +30,7 @@ namespace pe {
             size_t getHash() const { return calcEnetAddressHashCode(mPeer->address); }
             ENetPeer* getPeer() const { return mPeer; }
 
-            void handleGreet(ToS_Hello* packet);
+            void handleGreet(ToS_Hello* packet) { mHasGreeting = true; }
             void disconnect();
 
             friend struct Handlers;

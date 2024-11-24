@@ -29,6 +29,12 @@ namespace pe {
             mThread = std::thread(&NetClient::threadFunc, this);
         }
 
+        void NetClient::kill()
+        {
+            al::setNerve(this, &nrvNetClientStall);
+            mIsDead = true;
+        }
+
         void NetClient::threadFunc() {
             const auto wait = std::chrono::milliseconds(sStepInterval);
 
@@ -73,7 +79,7 @@ namespace pe {
             if (mServerPeer->state != ENET_PEER_STATE_CONNECTED)
                 return;
             size_t bufSize = packet->calcSize();
-            void* buf = buddyMalloc(bufSize);
+            void* buf = malloc(bufSize);
             size_t packetSize = packet->build(buf);
 
             // ENET_PACKET_FLAG_NO_ALLOCATE is FUCKING broken dont use it
@@ -87,7 +93,7 @@ namespace pe {
             // enet_host_flush(mClient); // try this later
 
             mClientCS.unlock();
-            buddyFree(buf);
+            free(buf);
         }
 
         void NetClient::printStatusMsg(char* buf) {

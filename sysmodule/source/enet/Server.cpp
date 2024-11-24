@@ -120,7 +120,7 @@ namespace pe {
                     size_t hash = calcEnetAddressHashCode(addr);
 
                     if (!mClients.contains(hash)) {
-                        printf("Warning: packet from invalid peer. disconnecting");
+                        nxdb::log("Warning: packet from invalid peer. disconnecting");
                         enet_peer_disconnect(event.peer, 0);
                         break;
                     }

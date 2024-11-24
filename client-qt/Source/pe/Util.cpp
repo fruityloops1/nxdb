@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <random>
 
 #ifdef _WIN32
 #include <winsock.h>
@@ -65,6 +66,13 @@ char* InetNtoa(unsigned int addr)
         inaddr = { addr };
 #endif
     return inet_ntoa(inaddr);
+}
+
+static std::mt19937_64 sRand(time(nullptr));
+
+uint64_t getRandom()
+{
+    return sRand();
 }
 
 } // namespace pe
