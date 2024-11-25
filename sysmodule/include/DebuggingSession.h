@@ -2,6 +2,7 @@
 
 #include "Client.h"
 #include "types.h"
+#include <thread>
 #include <vector>
 
 namespace nxdb {
@@ -27,12 +28,22 @@ namespace nxdb {
         Module mModules[sMaxModules];
         char mName[12] { 0 };
 
+        std::thread mDebugEventHandlerThread;
+        bool mKillThread = false;
+        bool mShouldContinue = true;
+
         DebuggingSession(u64 pid, pe::enet::Client* owner);
         ~DebuggingSession();
         void findModules();
         void findName();
 
-        bool isValid() { return mDebugHandle; }
+        bool tryContinueImpl();
+        void continue_() { mShouldContinue = true; }
+        void handleDebugEvent(const nxdb::svc::DebugEventInfo& d);
+        void handleDebugEvents();
+        void debugEventHandlerThreadFunc();
+
+        bool isValid() { return mDebugHandle && mSessionId; }
 
         Result readMemorySlow(void* out, paddr addr, size_t size);
         Result writeMemorySlow(const void* buffer, paddr addr, size_t size);
@@ -46,7 +57,8 @@ namespace nxdb {
         static DebuggingSessionMgr& instance();
 
         u64 registerNew(u64 pid, pe::enet::Client* owner);
-        DebuggingSession* getById(u64 sessionId);
+        DebuggingSession* getBySessionId(u64 sessionId);
+        DebuggingSession* getByProcessId(u64 processId);
         void deleteOwnedBy(pe::enet::Client* owner);
         void deleteById(u64 sessionId);
     };

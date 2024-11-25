@@ -2,7 +2,7 @@
 #include "./ui_mainwindow.h"
 #include "pe/Enet/NetClient.h"
 #include "pe/Enet/Packets/DataPackets.h"
-#include <QResizeEvent>
+#include "nxdb/Util.h"
 
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
@@ -17,6 +17,9 @@ MainWindow::MainWindow(QWidget* parent)
 MainWindow::~MainWindow() {
     delete ui;
     delete mTableModel;
+
+    for (ProcessDockspace* dock : mDebuggedProcessList)
+        delete dock;
 }
 
 void MainWindow::getProcesses()
@@ -41,7 +44,7 @@ void MainWindow::updateProcessTable()
         auto& p = mProcessList.processes[i];
         QStandardItem* nameItem = new QStandardItem(QString(p.name));
         QStandardItem* processIdItem = new QStandardItem(QString("%1").arg(p.processId));
-        QStandardItem* programIdItem = new QStandardItem(QString("%1").arg(p.programId, 16, 16, QChar('0')).toUpper());
+        QStandardItem* programIdItem = new QStandardItem(nxdb::util::hexStrDigit(p.programId));
 
         nameItem->setEditable(false);
         processIdItem->setEditable(false);
@@ -81,18 +84,34 @@ void MainWindow::on_buttonDebugSelectedProcess_clicked()
         pe::enet::getNetClient()->makeRequest<pe::enet::StartDebugging>({processId}, [this](pe::enet::StartDebugging_::Response* response) {
             printf("Session ID: %zu\n", response->sessionId);
 
+            if (response->sessionId == 0)
+                return;
+
             pe::enet::getNetClient()->makeRequest<pe::enet::GetDebuggingSessionInfo>({response->sessionId}, [this](pe::enet::GetDebuggingSessionInfo_::Response* response) {
-                printf("numModules %d\n", response->numModules);
-                for (int i = 0; i< response->numModules; i++)
+                nxdb::Process process;
+                process.processId = response->processId;
+                process.programId = response->programId;
+                process.processName = response->processName;
+
+                for (int i = 0; i < response->numModules; i++)
                 {
                     auto& mod = response->modules[i];
-                    printf("module %s\n", response->moduleNameStringTable + mod.nameOffsetIntoStringTable);
-                    printf("module base %016lx\n", mod.base);
-                    printf("module size %016lx\n", mod.size);
+                    process.modules.push_back({mod.base, mod.size, response->moduleNameStringTable + mod.nameOffsetIntoStringTable});
                 }
+
+                printf("Num Modules: %d Name: %s\n", response->numModules, response->processName);
+
+                QMetaObject::invokeMethod(this, "createProcessDockspace", Qt::QueuedConnection, Q_ARG(nxdb::Process, process));
             });
         });
     }
+}
+
+void MainWindow::createProcessDockspace(const nxdb::Process& process)
+{
+    auto* window = new ProcessDockspace(this, process);
+    window->show();
+    mDebuggedProcessList.push_back(window);
 }
 
 void MainWindow::on_processTable_pressed(const QModelIndex &index)

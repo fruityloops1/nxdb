@@ -5,6 +5,8 @@
 #include <QStandardItemModel>
 #include "pe/Enet/Packets/DataPackets.h"
 #include <QItemSelectionModel>
+#include "nxdb/Process.h"
+#include "processdockspace.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -26,12 +28,15 @@ public:
 private slots:
     void on_buttonUpdateProcessList_clicked();
     void on_buttonDebugSelectedProcess_clicked();
-
     void on_processTable_pressed(const QModelIndex &index);
+
+    void createProcessDockspace(const nxdb::Process& process);
 
 private:
     Ui::MainWindow* ui;
     QStandardItemModel* mTableModel;
+
     pe::enet::ProcessList_::Response mProcessList;
+    std::vector<ProcessDockspace*> mDebuggedProcessList;
 };
 #endif // MAINWINDOW_H

@@ -98,20 +98,19 @@ namespace pe {
         }
 
         void StartDebugging_::handleRequest(Request* req, Client* client, u32 requestId) {
-            u64 sessionId = nxdb::DebuggingSessionMgr::instance().registerNew(req->processIdToDebug, client);
+            auto& mgr = nxdb::DebuggingSessionMgr::instance();
+            bool exists = mgr.getByProcessId(req->processIdToDebug) != nullptr;
 
             StartDebugging::ResponsePacketType packet(requestId);
-            nxdb::log("got requestid %x", requestId);
             auto& res = packet.data;
-
-            res.sessionId = sessionId;
-            nxdb::log("new sesssion id returned as %zu", res.sessionId);
+            res.sessionId = exists ? 0
+                                   : mgr.registerNew(req->processIdToDebug, client);
 
             client->sendPacket(&packet);
         }
 
         void GetDebuggingSessionInfo_::handleRequest(Request* req, Client* client, u32 requestId) {
-            auto* session = nxdb::DebuggingSessionMgr::instance().getById(req->sessionId);
+            auto* session = nxdb::DebuggingSessionMgr::instance().getBySessionId(req->sessionId);
 
             nxdb::log("getdebug shit %zu", req->sessionId);
 

@@ -24,17 +24,17 @@ typedef size_t size;
 #define ALIGN_PTR(ptr, alignment) \
     (((ptr) + ((alignment) - 1)) & ~((alignment) - 1))
 
-#define R_TRY(RC)         \
-    {                     \
-        Result rc = RC(); \
-        if (R_FAILED(rc)) \
-            return rc;    \
+#define R_TRY(RC)                  \
+    {                              \
+        Result _resultcode = RC(); \
+        if (R_FAILED(_resultcode)) \
+            return _resultcode;    \
     }
-#define R_ABORT_UNLESS(RC)           \
-    {                                \
-        Result rc = RC;              \
-        if (R_FAILED(rc))            \
-            diagAbortWithResult(rc); \
+#define R_ABORT_UNLESS(RC)                    \
+    {                                         \
+        Result _resultcode = RC;              \
+        if (R_FAILED(_resultcode))            \
+            diagAbortWithResult(_resultcode); \
     }
 
 namespace nxdb {
@@ -331,3 +331,8 @@ namespace nxdb {
     } // namespace svc
 
 } // namespace nxdb
+
+inline u64 operator""_ns(unsigned long long ns) { return ns; }
+inline u64 operator""_us(unsigned long long µs) { return µs * 1000; }
+inline u64 operator""_ms(unsigned long long ms) { return ms * 1000000; }
+inline u64 operator""_s(unsigned long long s) { return s * 1000000000; }

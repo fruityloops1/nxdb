@@ -25,7 +25,7 @@ namespace pe {
                 } __attribute__((packed));
 
                 s32 num = 0;
-                Process processes[80];
+                Process processes[sMaxPids];
             };
 
             static void handleRequest(Request* req, Client* client, u32 requestId);

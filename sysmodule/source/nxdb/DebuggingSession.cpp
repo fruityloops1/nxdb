@@ -1,5 +1,7 @@
 #include "DebuggingSession.h"
 #include "LogServer.h"
+#include "switch/runtime/diag.h"
+#include "types.h"
 
 extern "C" {
 #include "../ams/pm_ams.os.horizon.h"
@@ -21,6 +23,8 @@ namespace nxdb {
             findName();
 
             mSessionId = armGetSystemTick();
+
+            mDebugEventHandlerThread = std::thread(&DebuggingSession::debugEventHandlerThreadFunc, this);
         }
 
         nxdb::log("New session %zu owned by %x", mSessionId, mOwner->getHash());
@@ -30,6 +34,12 @@ namespace nxdb {
         nxdb::log("Deleting session %zu owned by %x", mSessionId, mOwner->getHash());
         if (mDebugHandle)
             svcCloseHandle(mDebugHandle);
+        if (mProcessHandle)
+            svcCloseHandle(mProcessHandle);
+
+        mKillThread = true;
+        if (mDebugEventHandlerThread.joinable())
+            mDebugEventHandlerThread.join();
     }
 
     Result DebuggingSession::readMemorySlow(void* out, paddr addr, size_t size) {
@@ -91,9 +101,74 @@ namespace nxdb {
             std::memcpy(mName, d.info.create_process.name, sizeof(mName));
         }
 
-        // Not worth the effort to use ContinueDebugEvent, just re-debug the processt
-        R_ABORT_UNLESS(svcCloseHandle(mDebugHandle));
-        R_ABORT_UNLESS(svcDebugActiveProcess(&mDebugHandle, mProcessId));
+        if (tryContinueImpl() == false)
+            diagAbortWithResult(0xfefef0);
+    }
+
+    bool DebuggingSession::tryContinueImpl() {
+        for (int core = 0; core < 4; core++) {
+            R_ABORT_UNLESS(svcSetThreadCoreMask(Handle(nxdb::svc::PseudoHandle::CurrentThread), core, 1 << core));
+            u64 tids[] { 0 };
+
+            Result rc = svcContinueDebugEvent(mDebugHandle, nxdb::svc::ContinueFlag_ContinueAll, tids, 1);
+            while (rc == 0xf401) {
+                nxdb::svc::DebugEventInfo d;
+                R_ABORT_UNLESS(svcGetDebugEvent(&d, mDebugHandle));
+                // do nothing with it
+                rc = svcContinueDebugEvent(mDebugHandle, nxdb::svc::ContinueFlag_ContinueAll, tids, 1);
+            }
+
+            if (R_FAILED(rc))
+                return false;
+        }
+        return true;
+    }
+
+    void DebuggingSession::handleDebugEvent(const nxdb::svc::DebugEventInfo& d) {
+        switch (d.type) {
+        case svc::DebugEvent_CreateProcess:
+        case svc::DebugEvent_CreateThread:
+        case svc::DebugEvent_ExitProcess:
+        case svc::DebugEvent_ExitThread:
+        case svc::DebugEvent_Exception:
+            break; // whatever
+        default:
+            break;
+        }
+
+        continue_();
+    }
+
+    void DebuggingSession::handleDebugEvents() {
+        Result rc = 0;
+        while (R_SUCCEEDED(rc)) {
+            nxdb::svc::DebugEventInfo d;
+            rc = svcGetDebugEvent(&d, mDebugHandle);
+
+            if (R_SUCCEEDED(rc))
+                handleDebugEvent(d);
+        }
+    }
+
+    void DebuggingSession::debugEventHandlerThreadFunc() {
+        while (mKillThread == false) {
+            s32 idx;
+            Result rc = svcWaitSynchronization(&idx, &mDebugHandle, 1, 250_ms);
+            if (rc == 0xea01) // timeout
+                continue;
+            else
+                R_ABORT_UNLESS(rc);
+
+            if (R_SUCCEEDED(rc))
+                handleDebugEvents();
+
+            if (mShouldContinue) {
+                tryContinueImpl();
+                mShouldContinue = false;
+            }
+        }
+
+        nxdb::log("exited Debug THREAD");
     }
 
     u64 DebuggingSessionMgr::registerNew(u64 pid, pe::enet::Client* owner) {
@@ -106,9 +181,18 @@ namespace nxdb {
         return 0;
     }
 
-    DebuggingSession* DebuggingSessionMgr::getById(u64 sessionId) {
+    DebuggingSession* DebuggingSessionMgr::getBySessionId(u64 sessionId) {
         for (int i = 0; i < mSessions.size(); i++) {
             if (mSessions[i]->mSessionId == sessionId) {
+                return mSessions[i];
+            }
+        }
+        return nullptr;
+    }
+
+    DebuggingSession* DebuggingSessionMgr::getByProcessId(u64 processId) {
+        for (int i = 0; i < mSessions.size(); i++) {
+            if (mSessions[i]->mProcessId == processId) {
                 return mSessions[i];
             }
         }
