@@ -90,6 +90,10 @@ namespace nxdb {
         if (d.type == nxdb::svc::DebugEvent_CreateProcess) {
             std::memcpy(mName, d.info.create_process.name, sizeof(mName));
         }
+
+        // Not worth the effort to use ContinueDebugEvent, just re-debug the processt
+        R_ABORT_UNLESS(svcCloseHandle(mDebugHandle));
+        R_ABORT_UNLESS(svcDebugActiveProcess(&mDebugHandle, mProcessId));
     }
 
     u64 DebuggingSessionMgr::registerNew(u64 pid, pe::enet::Client* owner) {
