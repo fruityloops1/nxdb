@@ -1,9 +1,9 @@
 #ifndef MEMORY_H
 #define MEMORY_H
 
+#include "memoryedit.h"
 #include <QDockWidget>
 #include <QMainWindow>
-#include "memoryedit.h"
 
 namespace Ui {
     class Memory;
@@ -17,6 +17,7 @@ public:
     ~Memory();
 
     void resizeEvent(QResizeEvent* event) override;
+    void wheelEvent(QWheelEvent* event) override;
 
 private slots:
 private:

@@ -1,5 +1,6 @@
 #include "processdockspace.h"
 #include "ui_processdockspace.h"
+#include <QLayout>
 
 ProcessDockspace::ProcessDockspace(QWidget* parent, const nxdb::Process& process)
     : QMainWindow(parent)
@@ -12,6 +13,8 @@ ProcessDockspace::ProcessDockspace(QWidget* parent, const nxdb::Process& process
     setDockOptions(DockOption::AnimatedDocks | DockOption::AllowNestedDocks | DockOption::AllowTabbedDocks);
     addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, mModuleList);
     addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, mMemory);
+
+    statusBar()->showMessage("hi");
 
 #define CONNECT_DOCK(NAME)                                                               \
     ui->actionView##NAME->setChecked(true);                                            \

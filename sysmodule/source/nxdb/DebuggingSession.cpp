@@ -14,7 +14,8 @@ namespace nxdb {
 
     DebuggingSession::DebuggingSession(u64 pid, pe::enet::Client* owner)
         : mOwner(owner)
-        , mProcessId(pid) {
+        , mProcessId(pid)
+        , mMapMgr(*this) {
         Result rc = svcDebugActiveProcess(&mDebugHandle, pid);
         if (R_SUCCEEDED(rc)) {
             R_ABORT_UNLESS(pmdmntAtmosphereGetProcessInfo(&mProcessHandle, nullptr, nullptr, pid));
@@ -25,6 +26,7 @@ namespace nxdb {
             mSessionId = armGetSystemTick();
 
             mDebugEventHandlerThread = std::thread(&DebuggingSession::debugEventHandlerThreadFunc, this);
+            mMapMgr.mapBlocks();
         }
 
         nxdb::log("New session %zu owned by %x", mSessionId, mOwner->getHash());
@@ -50,11 +52,11 @@ namespace nxdb {
         return svcWriteDebugProcessMemory(mDebugHandle, buffer, addr, size);
     }
 
-    Result DebuggingSession::queryMemory(MemoryInfo* outMemInfo, u32* outPageInfo, Handle debugHandle, paddr addr) {
+    Result DebuggingSession::queryMemory(MemoryInfo* outMemInfo, u32* outPageInfo, paddr addr) {
         MemoryInfo dummyMemInfo;
         u32 dummyPageInfo;
 
-        return svcQueryDebugProcessMemory(outMemInfo ?: &dummyMemInfo, outPageInfo ?: &dummyPageInfo, debugHandle, addr);
+        return svcQueryDebugProcessMemory(outMemInfo ?: &dummyMemInfo, outPageInfo ?: &dummyPageInfo, mDebugHandle, addr);
     }
 
     void DebuggingSession::findModules() {
@@ -64,7 +66,7 @@ namespace nxdb {
         while (true) {
             MemoryInfo memoryInfo;
 
-            if (R_SUCCEEDED(queryMemory(&memoryInfo, nullptr, mDebugHandle, curAddr))) {
+            if (R_SUCCEEDED(queryMemory(&memoryInfo, nullptr, curAddr))) {
                 if (memoryInfo.perm == Perm_Rx && (memoryInfo.type == MemType_CodeStatic || memoryInfo.type == MemType_ModuleCodeStatic)) {
                     auto& module = mModules[mNumModules++];
                     module.base = memoryInfo.addr;

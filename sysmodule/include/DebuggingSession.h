@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Client.h"
+#include "MemoryMapMgr.h"
 #include "types.h"
 #include <thread>
 #include <vector>
@@ -32,6 +33,8 @@ namespace nxdb {
         bool mKillThread = false;
         bool mShouldContinue = true;
 
+        MemoryMapMgr mMapMgr;
+
         DebuggingSession(u64 pid, pe::enet::Client* owner);
         ~DebuggingSession();
         void findModules();
@@ -47,7 +50,7 @@ namespace nxdb {
 
         Result readMemorySlow(void* out, paddr addr, size_t size);
         Result writeMemorySlow(const void* buffer, paddr addr, size_t size);
-        Result queryMemory(MemoryInfo* outMemInfo, u32* outPageInfo, Handle debugHandle, paddr addr);
+        Result queryMemory(MemoryInfo* outMemInfo, u32* outPageInfo, paddr addr);
     };
 
     class DebuggingSessionMgr {
