@@ -25,12 +25,16 @@ public:
     void updateProcessTable();
     void updateProcessTableSelection();
 
+    void debugProcess(int row);
+
 private slots:
     void on_buttonUpdateProcessList_clicked();
     void on_buttonDebugSelectedProcess_clicked();
     void on_processTable_pressed(const QModelIndex &index);
 
     void createProcessDockspace(const nxdb::Process& process);
+
+    void on_processTable_doubleClicked(const QModelIndex &index);
 
 private:
     Ui::MainWindow* ui;

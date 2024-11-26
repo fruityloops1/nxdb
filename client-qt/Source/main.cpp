@@ -20,7 +20,7 @@ int main(int argc, char* argv[]) {
     pe::enet::ProjectPacketHandler handler;
     pe::enet::NetClient client(&handler);
     pe::enet::setNetClient(&client);
-    client.connect("192.168.188.151", port);
+    client.connect("192.168.158.202", port);
 
     MainWindow w;
     w.show();

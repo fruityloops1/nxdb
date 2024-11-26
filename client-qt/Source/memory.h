@@ -3,6 +3,7 @@
 
 #include <QDockWidget>
 #include <QMainWindow>
+#include "memoryedit.h"
 
 namespace Ui {
     class Memory;
@@ -18,16 +19,9 @@ public:
     void resizeEvent(QResizeEvent* event) override;
 
 private slots:
-
-    void on_table_itemSelectionChanged();
-
-    void on_table_cellEntered(int row, int column);
-
 private:
     Ui::Memory* ui;
-    uintptr_t mRegionAddress = 0x00000069149F0000;
-    int mRowHeight = 0;
-    int mRowWidth = 0;
+    MemoryEdit* mMemoryEdit;
 };
 
 #endif // MEMORY_H
