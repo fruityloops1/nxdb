@@ -26,11 +26,11 @@ namespace pe {
             u32 flags = ENET_PACKET_FLAG_NO_ALLOCATE;
             if (reliable)
                 flags |= ENET_PACKET_FLAG_RELIABLE;
-            size_t packetSize = packet->calcSize();
-            u8* buf = new u8[packetSize];
-            size_t len = packet->build(buf);
+            size_t bufSize = packet->calcSize();
+            u8* buf = new u8[bufSize];
+            size_t packetSize = packet->build(buf);
 
-            ENetPacket* pak = enet_packet_create(buf, len, flags);
+            ENetPacket* pak = enet_packet_create(buf, packetSize == -1 ? bufSize : packetSize, flags);
             enet_peer_send(mPeer, (int)identifyType(packet), pak);
             delete[] buf;
         }

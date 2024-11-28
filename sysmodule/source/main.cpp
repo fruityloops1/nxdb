@@ -62,7 +62,7 @@ void __appInit(void) {
         .tcp_tx_buf_max_size = 0,
         .tcp_rx_buf_max_size = 0,
 
-        .udp_tx_buf_size = 0x2400,
+        .udp_tx_buf_size = 0x10000,
         .udp_rx_buf_size = 0xA500,
 
         .sb_efficiency = 2,

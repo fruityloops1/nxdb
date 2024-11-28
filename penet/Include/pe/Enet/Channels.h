@@ -3,6 +3,7 @@
 #include "pe/Enet/IPacket.h"
 #include "pe/Enet/Impls.h"
 #include "pe/Enet/Packets/DataPackets.h"
+#include "pe/Enet/Packets/MemorySubscriptionData.h"
 #ifndef NNSDK
 #include <new>
 #endif
@@ -20,15 +21,18 @@ namespace pe {
         i++;                                                      \
     }
 
-#define PENET_CHANNELS            \
-    PENET_CHANNEL(ToS_Hello)      \
-    PENET_CHANNEL(Test)             \
-    PENET_CHANNEL(ProcessListReq) \
-    PENET_CHANNEL(ProcessListRes) \
-    PENET_CHANNEL(StartDebuggingReq) \
-    PENET_CHANNEL(StartDebuggingRes) \
+#define PENET_CHANNELS                        \
+    PENET_CHANNEL(ToS_Hello)                  \
+    PENET_CHANNEL(Test)                       \
+    PENET_CHANNEL(ProcessListReq)             \
+    PENET_CHANNEL(ProcessListRes)             \
+    PENET_CHANNEL(StartDebuggingReq)          \
+    PENET_CHANNEL(StartDebuggingRes)          \
     PENET_CHANNEL(GetDebuggingSessionInfoReq) \
     PENET_CHANNEL(GetDebuggingSessionInfoRes) \
+    PENET_CHANNEL(EditSubscriptionReq) \
+    PENET_CHANNEL(EditSubscriptionRes) \
+    PENET_CHANNEL(MemorySubscriptionData)
 
         /*
          *

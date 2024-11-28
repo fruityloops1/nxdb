@@ -80,11 +80,14 @@ void MainWindow::debugProcess(int row) {
             return;
         }
 
-        pe::enet::getNetClient()->makeRequest<pe::enet::GetDebuggingSessionInfo>({ response->sessionId }, [this](pe::enet::GetDebuggingSessionInfo_::Response* response) {
+        auto sessionId = response->sessionId;
+
+        pe::enet::getNetClient()->makeRequest<pe::enet::GetDebuggingSessionInfo>({ response->sessionId }, [this, sessionId](pe::enet::GetDebuggingSessionInfo_::Response* response) {
             nxdb::Process process;
             process.processId = response->processId;
             process.programId = response->programId;
             process.processName = response->processName;
+            process.sessionId = sessionId;
 
             for (int i = 0; i < response->numModules; i++) {
                 auto& mod = response->modules[i];

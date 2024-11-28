@@ -71,5 +71,24 @@ namespace pe {
 
         REQUEST_DEFINES(GetDebuggingSessionInfo)
 
+        struct EditSubscription_ {
+            struct Request {
+                u64 sessionId;
+
+                u64 subscriptionId = 0; // 0 = create new, other = edit
+                u64 addr = 0; // -1 = delete
+                size_t size = 0;
+                int frequencyHz = 10;
+            };
+            struct Response {
+                u64 subscriptionId = 0; // 0 if fail
+                char _[0x10];
+            };
+
+            static void handleRequest(Request* req, Client* client, u32 requestId);
+        };
+
+        REQUEST_DEFINES(EditSubscription)
+
     } // namespace enet
 } // namespace pe

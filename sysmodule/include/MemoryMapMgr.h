@@ -9,7 +9,7 @@ extern "C" {
 
 namespace nxdb {
 
-    class DebuggingSession;
+    struct DebuggingSession;
 
     class MemoryMapMgr {
         struct MapBlock {
@@ -18,7 +18,21 @@ namespace nxdb {
             size_t size;
             VirtmemReservation* reservation;
 
-            void unmap() { }
+            void unmap(Handle processHandle);
+
+            uintptr_t get(paddr ptr) const {
+                return (ptr - startOrig) + startMapped;
+            }
+
+            template <typename T>
+            T* get(paddr ptr) const {
+                return reinterpret_cast<T*>(get(ptr));
+            }
+
+            template <typename T>
+            T* get(T* ptr) const {
+                return get(paddr(ptr));
+            }
         };
 
         DebuggingSession& mSession;
@@ -30,6 +44,39 @@ namespace nxdb {
         ~MemoryMapMgr();
 
         void mapBlocks();
+
+        uintptr_t get(paddr ptr) const {
+            for (auto& block : mBlocks) {
+                if (ptr >= block.startOrig && ptr <= block.startOrig + block.size) {
+                    return block.get(ptr);
+                }
+            }
+            return 0;
+        }
+
+        template <typename T>
+        T* get(paddr ptr) const {
+            return reinterpret_cast<T*>(get(ptr));
+        }
+
+        template <typename T>
+        T* get(T* ptr) const {
+            return get(paddr(ptr));
+        }
+
+        const MapBlock* findBlock(paddr ptr) const {
+            for (auto& block : mBlocks) {
+                if (ptr >= block.startOrig && ptr <= block.startOrig + block.size) {
+                    return &block;
+                }
+            }
+            return nullptr;
+        }
+
+        template <typename T>
+        const MapBlock* findBlock(T* ptr) const {
+            return findBlock(paddr(ptr));
+        }
     };
 
 } // namespace nxdb

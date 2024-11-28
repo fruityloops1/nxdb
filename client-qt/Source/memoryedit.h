@@ -3,11 +3,13 @@
 
 #include <QLayoutItem>
 #include <QWidget>
+#include "pe/Enet/Types.h"
+#include "nxdb/Process.h"
 
 class MemoryEdit : public QWidget, public QLayoutItem {
     Q_OBJECT
 public:
-    explicit MemoryEdit(QWidget* parent = nullptr);
+    explicit MemoryEdit(QWidget* parent, const nxdb::Process& process);
 
     QWidget* widget() const override { return const_cast<MemoryEdit*>(this); } // ???????????
 
@@ -67,10 +69,15 @@ protected:
     void paintEvent(QPaintEvent* event) override;
 
 private:
+    void updateSubscription();
+
     QFont mMonospaceFont;
     int mCharWidth = 0;
     int mCharHeight = 0;
     uintptr_t mRegionAddress = 0x1230;
+
+    const nxdb::Process& mProcess;
+    u64 mSubscriptionId = 0;
 };
 
 #endif // MEMORYEDIT_H

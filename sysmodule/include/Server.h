@@ -53,10 +53,15 @@ namespace pe {
             bool isAlive() const { return !mIsDead; }
 
             auto getSyncClockStartTimestamp() { return mSyncClockStartTimestamp; }
-            void flush() { enet_host_flush(mServer); }
+            void flush() {
+                std::scoped_lock lock(mEnetMutex);
+                enet_host_flush(mServer);
+            }
 
             static constexpr int sSyncClockInterval = 12000;
             friend struct Handlers;
+
+            static Server* sInstance;
         };
 
     } // namespace enet

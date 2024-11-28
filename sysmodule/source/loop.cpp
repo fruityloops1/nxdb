@@ -14,8 +14,6 @@ extern "C" {
 #include "switch/services/hid.h"
 }
 
-static pe::enet::Server* server = nullptr;
-
 static void no_memory() {
     nxdb::log("ENet ran out of memory", 0);
     diagAbortWithResult(0x0);
@@ -30,7 +28,6 @@ void shit() {
 
     pe::enet::ProjectPacketHandler handler;
     pe::enet::Server server({ ENET_HOST_ANY, 3450 }, handler, callbacks);
-    ::server = &server;
     server.start();
 
     while (true)

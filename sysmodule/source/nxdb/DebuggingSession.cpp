@@ -1,5 +1,8 @@
 #include "DebuggingSession.h"
 #include "LogServer.h"
+#include "Server.h"
+#include "pe/Enet/Hash.h"
+#include "pe/Enet/Packets/MemorySubscriptionData.h"
 #include "switch/runtime/diag.h"
 #include "types.h"
 
@@ -15,7 +18,7 @@ namespace nxdb {
     DebuggingSession::DebuggingSession(u64 pid, pe::enet::Client* owner)
         : mOwner(owner)
         , mProcessId(pid)
-        , mMapMgr(*this) {
+        , mMapMgr(new MemoryMapMgr(*this)) {
         Result rc = svcDebugActiveProcess(&mDebugHandle, pid);
         if (R_SUCCEEDED(rc)) {
             R_ABORT_UNLESS(pmdmntAtmosphereGetProcessInfo(&mProcessHandle, nullptr, nullptr, pid));
@@ -24,9 +27,12 @@ namespace nxdb {
             findName();
 
             mSessionId = armGetSystemTick();
+            mMapMgr->mapBlocks();
 
             mDebugEventHandlerThread = std::thread(&DebuggingSession::debugEventHandlerThreadFunc, this);
-            mMapMgr.mapBlocks();
+            mDataTransferThread = std::thread(&DebuggingSession::dataTransterThreadFunc, this);
+
+            mSubscriptions.push_back({ 44, mMapMgr->get<void>(mModules[0].base), 128, armGetSystemTick(), 60 });
         }
 
         nxdb::log("New session %zu owned by %x", mSessionId, mOwner->getHash());
@@ -34,6 +40,8 @@ namespace nxdb {
 
     DebuggingSession::~DebuggingSession() {
         nxdb::log("Deleting session %zu owned by %x", mSessionId, mOwner->getHash());
+        delete mMapMgr;
+
         if (mDebugHandle)
             svcCloseHandle(mDebugHandle);
         if (mProcessHandle)
@@ -42,6 +50,8 @@ namespace nxdb {
         mKillThread = true;
         if (mDebugEventHandlerThread.joinable())
             mDebugEventHandlerThread.join();
+        if (mDataTransferThread.joinable())
+            mDataTransferThread.join();
     }
 
     Result DebuggingSession::readMemorySlow(void* out, paddr addr, size_t size) {
@@ -171,6 +181,56 @@ namespace nxdb {
         }
 
         nxdb::log("exited Debug THREAD");
+    }
+
+    void DebuggingSession::dataTransterThreadFunc() {
+        while (mKillThread == false) {
+            svcSleepThread(1_s / 60);
+            /**
+             * ^ Usually, you'd calculate the least common multiple of the frequencies to
+             * wait it out most accurately here, but that would exponentially inflate the
+             * frequency for combinations such as [14Hz, 60Hz] -> 840Hz, and we don't really
+             * need that accuracy as practically only simple frequencies like 24, 30, or 60
+             * will be used.
+             */
+
+            for (MemorySubscription& sub : mSubscriptions) {
+                const auto cntfrq = armGetSystemTickFreq();
+                u64 now = armGetSystemTick();
+                u64 nextSend = sub.lastSendTick + cntfrq / sub.sendFrequencyHz;
+                if (now >= nextSend || nextSend - now < cntfrq / 120) {
+                    u32 hash = util::hashMurmur((u8*)sub.mem, sub.size);
+                    if (hash != sub.lastHash) {
+                        pe::enet::MemorySubscriptionData packet(sub.id, sub.mem, sub.size);
+                        mOwner->sendPacket(&packet, false);
+
+                        sub.lastHash = hash;
+                        sub.lastSendTick = armGetSystemTick();
+                    }
+                }
+            }
+
+            // pe::enet::Server::sInstance->flush();
+        }
+
+        nxdb::log("exited data Tranfer THREAD");
+    }
+
+    DebuggingSession::MemorySubscription* DebuggingSession::findSubscriptionById(u64 id) {
+        for (MemorySubscription& sub : mSubscriptions)
+            if (sub.id == id)
+                return &sub;
+        return nullptr;
+    }
+
+    void DebuggingSession::removeSubscriptionById(u64 id) {
+        for (int i = 0; i < mSubscriptions.size(); i++) {
+            MemorySubscription& sub = mSubscriptions[i];
+            if (sub.id == id) {
+                mSubscriptions.erase(mSubscriptions.begin() + i);
+                break;
+            }
+        }
     }
 
     u64 DebuggingSessionMgr::registerNew(u64 pid, pe::enet::Client* owner) {

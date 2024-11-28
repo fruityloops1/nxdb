@@ -8,13 +8,6 @@
 
 namespace nxdb {
 
-    struct MapEntry {
-        u64 base : 48;
-        u32 size : 30;
-        int type : 4;
-        int perm : 3;
-    } __attribute__((packed));
-
     static void perm(char* out, u32 perm) {
         if (perm & Perm_R)
             *out++ = 'R';
@@ -23,6 +16,22 @@ namespace nxdb {
         if (perm & Perm_X)
             *out++ = 'X';
         *out = '\0';
+    }
+
+    void MemoryMapMgr::MapBlock::unmap(Handle processHandle) {
+        MemoryInfo info;
+        u32 pageinfo;
+        uintptr_t addr = startMapped;
+
+        while (R_SUCCEEDED(svcQueryMemory(&info, &pageinfo, addr))) {
+            if (addr + info.size == 0x0000008000000000 || info.type == 0 || addr >= startMapped + size)
+                break;
+
+            nxdb::log("svcUnmapProcessMemory(%p, %d, %p, %p)", reinterpret_cast<void*>(addr), processHandle, addr, info.size);
+            R_ABORT_UNLESS(svcUnmapProcessMemory(reinterpret_cast<void*>(addr), processHandle, addr, info.size))
+
+            addr += info.size;
+        }
     }
 
     void MemoryMapMgr::mapBlocks() {
@@ -44,6 +53,8 @@ namespace nxdb {
             auto* reservation = virtmemAddReservation(found, blockSize);
             uintptr_t mapped = reinterpret_cast<uintptr_t>(found);
 
+            virtmemUnlock();
+
             nxdb::log("\n\n\nblock: 0x%016lx-0x%016lx", maps[0].addr, maps[numMaps - 1].addr + maps[numMaps - 1].size);
             for (int i = 0; i < numMaps; i++) {
                 auto& info = maps[i];
@@ -57,7 +68,7 @@ namespace nxdb {
 
                 nxdb::log("map 0x%016lx-0x%016lx state:%d perm:%s", base, end, info.type, perms);
 
-                if (info.type == MemType_SharedMem || info.type == MemType_MappedMemory) {
+                if (info.type == MemType_SharedMem || info.type == MemType_MappedMemory || info.type == MemType_ThreadLocal) {
                     continue;
                 }
 
@@ -67,8 +78,6 @@ namespace nxdb {
             }
 
             mBlocks.push_back({ first.addr, mapped, blockSize, reservation });
-
-            virtmemUnlock();
         };
 
         MemoryInfo info;
@@ -92,7 +101,7 @@ namespace nxdb {
 
     MemoryMapMgr::~MemoryMapMgr() {
         for (auto& block : mBlocks)
-            block.unmap();
+            block.unmap(mSession.mProcessHandle);
     }
 
 } // namespace nxdb

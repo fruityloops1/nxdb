@@ -5,6 +5,7 @@
 #include "pe/Enet/Channels.h"
 #include "pe/Enet/PacketHandler.h"
 #include "pe/Enet/Packets/DataPackets.h"
+#include "switch/arm/counter.h"
 #include "switch/result.h"
 #include "types.h"
 #include <chrono>
@@ -36,6 +37,8 @@ namespace pe {
                 (PacketHandler<Client>::HandlePacketType)StartDebugging::handleRequest<Client> },
             { ChannelType::GetDebuggingSessionInfoReq,
                 (PacketHandler<Client>::HandlePacketType)GetDebuggingSessionInfo::handleRequest<Client> },
+            { ChannelType::EditSubscriptionReq,
+                (PacketHandler<Client>::HandlePacketType)EditSubscription::handleRequest<Client> },
         };
 
         ProjectPacketHandler::ProjectPacketHandler()
@@ -143,6 +146,51 @@ namespace pe {
                     }
                 }
             }
+
+            client->sendPacket(&packet);
+        }
+
+        void EditSubscription_::handleRequest(Request* req, Client* client, u32 requestId) {
+            auto* session = nxdb::DebuggingSessionMgr::instance().getBySessionId(req->sessionId);
+
+            EditSubscription::ResponsePacketType packet(requestId);
+            auto& res = packet.data;
+
+            nxdb::log("EditSubscription_: %zu %p %p %d Hz added", req->subscriptionId, req->addr, req->size, req->frequencyHz);
+
+            if (session == nullptr) {
+                nxdb::log("EditSubscription_: invalid session %zu", req->sessionId);
+            } else {
+                void* mappedAddr = session->mMapMgr->get<void>(req->addr);
+
+                auto& subs = session->mSubscriptions;
+                if (mappedAddr) {
+                    if (req->subscriptionId == 0) {
+                        nxdb::DebuggingSession::MemorySubscription sub;
+                        sub.id = armGetSystemTick();
+                        sub.sendFrequencyHz = req->frequencyHz;
+                        sub.mem = mappedAddr;
+                        sub.size = req->size;
+                        res.subscriptionId = sub.id;
+                        subs.push_back(sub);
+                    } else {
+                        auto* sub = session->findSubscriptionById(res.subscriptionId);
+                        if (sub != nullptr) {
+                            if (req->addr == -1) {
+                                session->removeSubscriptionById(res.subscriptionId);
+                            } else {
+                                sub->size = req->size;
+                                sub->mem = mappedAddr;
+                                res.subscriptionId = sub->id;
+                            }
+                        } else
+                            nxdb::log("EditSubscription_: invalid subscription %zu", req->subscriptionId);
+                    }
+                } else {
+                    nxdb::log("EditSubscription_: %p unmapped addr", req->addr);
+                }
+            }
+            nxdb::log("EditSubscription_: sent subid %zu", res.subscriptionId);
 
             client->sendPacket(&packet);
         }

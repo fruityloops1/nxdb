@@ -85,7 +85,7 @@ namespace pe {
             // ENET_PACKET_FLAG_NO_ALLOCATE is FUCKING broken dont use it
             mClientCS.lock();
 
-            ENetPacket* pak = enet_packet_create(buf, packetSize, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
+            ENetPacket* pak = enet_packet_create(buf, packetSize == -1 ? bufSize : packetSize, reliable ? ENET_PACKET_FLAG_RELIABLE : 0);
             ChannelType type = identifyType(packet);
             enet_peer_send(mServerPeer, (int)type, pak);
             mPacketHandler->increaseSentPacketCount(type);
@@ -151,6 +151,8 @@ namespace pe {
                 if (mClient == nullptr) {
                     PENET_WARN("ENet client creation failed", 0);
                 }
+
+                mClient->checksum = enet_crc32;
 
                 ENetAddress addr;
                 enet_address_set_host_ip(&addr, mIp);

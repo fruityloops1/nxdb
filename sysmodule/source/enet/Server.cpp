@@ -1,5 +1,6 @@
 #include "Server.h"
 #include "Client.h"
+#include "LogServer.h"
 #include "al/Nerve/Nerve.h"
 #include "al/Nerve/NerveUtil.h"
 #include "enet/enet.h"
@@ -21,6 +22,8 @@ namespace pe {
             NERVE_DEF(Server, Service)
         }
 
+        Server* Server::sInstance = nullptr;
+
         Server::Server(ENetAddress address, PacketHandler<Client>& handler, const ENetCallbacks& callbacks)
             : al::NerveExecutor("Server")
             , mCallbacks(callbacks)
@@ -28,6 +31,7 @@ namespace pe {
             , mPacketHandler(handler) {
             initNerve(&nrvServerStall);
             mSyncClockStartTimestamp = std::chrono::high_resolution_clock::now();
+            sInstance = this;
         }
 
         void Server::threadFunc() {
@@ -51,7 +55,7 @@ namespace pe {
                 flags |= ENET_PACKET_FLAG_RELIABLE;
 
             mEnetMutex.lock();
-            ENetPacket* pak = enet_packet_create(buf, packetSize, flags);
+            ENetPacket* pak = enet_packet_create(buf, packetSize == -1 ? bufSize : packetSize, flags);
             ChannelType channel = identifyType(packet);
             for (int i = 0; i < mServer->peerCount; i++)
                 mPacketHandler.increaseSentPacketCount(channel);
@@ -83,6 +87,8 @@ namespace pe {
                     return;
                 }
 
+                mServer->checksum = enet_crc32;
+
                 mEnetMutex.unlock();
                 al::setNerve(this, &nrvServerService);
             }
@@ -101,7 +107,7 @@ namespace pe {
             mEnetMutex.lock();
 
             ENetEvent event;
-            while (enet_host_service(mServer, &event, 1000) > 0) {
+            while (enet_host_service(mServer, &event, 16) > 0) {
                 switch (event.type) {
                 case ENET_EVENT_TYPE_CONNECT: {
                     ENetAddress addr = event.peer->address;

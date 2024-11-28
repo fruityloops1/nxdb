@@ -4,9 +4,11 @@
 #include <QStyleOption>
 #include <QTimer>
 #include <QWheelEvent>
+#include "pe/Enet/Packets/DataPackets.h"
+#include "pe/Enet/NetClient.h"
 
-MemoryEdit::MemoryEdit(QWidget* parent)
-    : QWidget { parent } {
+MemoryEdit::MemoryEdit(QWidget* parent, const nxdb::Process& process)
+    : QWidget { parent }, mProcess(process) {
     // QTimer* timer = new QTimer(this);
     // connect(timer, &QTimer::timeout, this, QOverload<>::of(&MemoryEdit::update));
     // timer->start(1000);
@@ -18,6 +20,28 @@ MemoryEdit::MemoryEdit(QWidget* parent)
     mCharWidth = metrics.horizontalAdvance('0');
     mCharHeight = metrics.height();
     setMouseTracking(true);
+
+    printf("Initial sub id: %zu\n", mSubscriptionId);
+    mRegionAddress = mProcess.modules[0].base;
+    updateSubscription();
+}
+
+void MemoryEdit::updateSubscription()
+{
+    const QSize res = calcCellResolution();
+
+    printf("send sub id: %zu MR PROCESS ID %zu\n", mSubscriptionId, mProcess.sessionId);
+    pe::enet::EditSubscription_::Request request;
+    request.sessionId = mProcess.sessionId;
+    request.subscriptionId = mSubscriptionId;
+    request.addr = mRegionAddress;
+    request.frequencyHz = 30;
+    request.size = res.width() * res.height();
+
+    pe::enet::getNetClient()->makeRequest<pe::enet::EditSubscription>(request, [this](pe::enet::EditSubscription_::Response* response) {
+        printf("received sub id: %zu\n", response->subscriptionId);
+        mSubscriptionId = response->subscriptionId;
+    });
 }
 
 void MemoryEdit::paintEvent(QPaintEvent* event) {
@@ -40,6 +64,8 @@ void MemoryEdit::paintEvent(QPaintEvent* event) {
 void MemoryEdit::onWheelEvent(QWheelEvent* event) {
     int rows = event->angleDelta().y() / 120;
     mRegionAddress += -rows * calcCellResolution().width();
+
+    updateSubscription();
     repaint();
 }
 

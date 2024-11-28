@@ -3,10 +3,11 @@
 #include "ui_memory.h"
 #include <QWheelEvent>
 
-Memory::Memory(QMainWindow* parent)
+Memory::Memory(QMainWindow* parent, const nxdb::Process& process)
     : QDockWidget(parent)
     , ui(new Ui::Memory)
-    , mMemoryEdit(new MemoryEdit(this)) {
+    , mMemoryEdit(new MemoryEdit(this, process))
+    , mProcess(process) {
     ui->setupUi(this);
     ui->verticalLayout->addItem(mMemoryEdit);
 

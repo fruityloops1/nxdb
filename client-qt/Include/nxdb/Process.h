@@ -17,6 +17,8 @@ namespace nxdb {
         u64 programId;
         std::string processName;
         std::vector<Module> modules;
+
+        u64 sessionId;
     };
 
 } // namespace nxdb
