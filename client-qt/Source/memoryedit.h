@@ -5,6 +5,7 @@
 #include <QWidget>
 #include "pe/Enet/Types.h"
 #include "nxdb/Process.h"
+#include "pe/Enet/Packets/DataPackets.h"
 
 class MemoryEdit : public QWidget, public QLayoutItem {
     Q_OBJECT
@@ -78,6 +79,10 @@ private:
 
     const nxdb::Process& mProcess;
     u64 mSubscriptionId = 0;
+
+    pe::enet::EditSubscription_::Request mQueuedRequest;
+    bool mIsRequesting = false;
+    bool mIsQueuedRequest = false;
 };
 
 #endif // MEMORYEDIT_H

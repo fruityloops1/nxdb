@@ -82,7 +82,7 @@ namespace pe {
             };
             struct Response {
                 u64 subscriptionId = 0; // 0 if fail
-                char _[0x10];
+                char _[0x20];
             };
 
             static void handleRequest(Request* req, Client* client, u32 requestId);

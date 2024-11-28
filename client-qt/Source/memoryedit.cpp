@@ -4,7 +4,6 @@
 #include <QStyleOption>
 #include <QTimer>
 #include <QWheelEvent>
-#include "pe/Enet/Packets/DataPackets.h"
 #include "pe/Enet/NetClient.h"
 
 MemoryEdit::MemoryEdit(QWidget* parent, const nxdb::Process& process)
@@ -13,6 +12,7 @@ MemoryEdit::MemoryEdit(QWidget* parent, const nxdb::Process& process)
     // connect(timer, &QTimer::timeout, this, QOverload<>::of(&MemoryEdit::update));
     // timer->start(1000);
 
+    printf("MR PROCESS ID %zu\n", mProcess.sessionId);
     mMonospaceFont = { "Fira Code" };
     mMonospaceFont.setStyleHint(QFont::Monospace);
 
@@ -38,10 +38,27 @@ void MemoryEdit::updateSubscription()
     request.frequencyHz = 30;
     request.size = res.width() * res.height();
 
-    pe::enet::getNetClient()->makeRequest<pe::enet::EditSubscription>(request, [this](pe::enet::EditSubscription_::Response* response) {
-        printf("received sub id: %zu\n", response->subscriptionId);
-        mSubscriptionId = response->subscriptionId;
-    });
+
+    printf("mIsRequesting %d mIsQueuedRequest %d\n", mIsRequesting, mIsQueuedRequest);
+
+    /*if (mIsRequesting)
+    {
+        mIsQueuedRequest = true;
+        mQueuedRequest = request;
+    } else {
+        mIsRequesting = true;*/
+        pe::enet::getNetClient()->makeRequest<pe::enet::EditSubscription>(request, [this](pe::enet::EditSubscription_::Response* response) {
+            printf("received sub id: %zu\n", response->subscriptionId);
+            mSubscriptionId = response->subscriptionId;
+
+            /*mIsRequesting = false;
+            if (mIsQueuedRequest)
+            {
+                updateSubscription();
+                mIsQueuedRequest = false;
+            }*/
+        });
+    //}
 }
 
 void MemoryEdit::paintEvent(QPaintEvent* event) {

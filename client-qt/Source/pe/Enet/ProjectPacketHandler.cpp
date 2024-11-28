@@ -17,6 +17,11 @@ namespace pe {
             printf("memory id %zu size %zu\n", packet->id(), packet->size());
         }
 
+        static void kms(EditSubscriptionRes* packet)
+        {
+            printf("kill yourself %x\n", packet->requestId);
+        }
+
         const static PacketHandler<void>::PacketHandlerEntry sEntries[] {
             { ChannelType::ProcessListRes,
                 (PacketHandler<void>::HandlePacketType)ProcessList::handleResponse },
@@ -25,7 +30,7 @@ namespace pe {
             { ChannelType::GetDebuggingSessionInfoRes,
                 (PacketHandler<void>::HandlePacketType)GetDebuggingSessionInfo::handleResponse },
             { ChannelType::EditSubscriptionRes,
-                (PacketHandler<void>::HandlePacketType)EditSubscription::handleResponse },
+                (PacketHandler<void>::HandlePacketType)kms },
             { ChannelType::MemorySubscriptionData,
                 (PacketHandler<void>::HandlePacketType)handleMemorySub },
         };

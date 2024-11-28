@@ -28,7 +28,7 @@ namespace nxdb {
                 break;
 
             nxdb::log("svcUnmapProcessMemory(%p, %d, %p, %p)", reinterpret_cast<void*>(addr), processHandle, addr, info.size);
-            R_ABORT_UNLESS(svcUnmapProcessMemory(reinterpret_cast<void*>(addr), processHandle, addr, info.size))
+            R_ABORT_UNLESS(svcUnmapProcessMemory(reinterpret_cast<void*>(addr), processHandle, addr - startMapped + startOrig, info.size))
 
             addr += info.size;
         }

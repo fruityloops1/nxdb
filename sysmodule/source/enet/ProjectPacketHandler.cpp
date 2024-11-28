@@ -155,8 +155,7 @@ namespace pe {
 
             EditSubscription::ResponsePacketType packet(requestId);
             auto& res = packet.data;
-
-            nxdb::log("EditSubscription_: %zu %p %p %d Hz added", req->subscriptionId, req->addr, req->size, req->frequencyHz);
+            nxdb::log("EditSubscription_: requestId requestId %x", requestId);
 
             if (session == nullptr) {
                 nxdb::log("EditSubscription_: invalid session %zu", req->sessionId);
@@ -173,6 +172,8 @@ namespace pe {
                         sub.size = req->size;
                         res.subscriptionId = sub.id;
                         subs.push_back(sub);
+
+                        nxdb::log("EditSubscription_: %zu %p %p %dHz added", req->subscriptionId, req->addr, req->size, req->frequencyHz);
                     } else {
                         auto* sub = session->findSubscriptionById(res.subscriptionId);
                         if (sub != nullptr) {
@@ -182,6 +183,7 @@ namespace pe {
                                 sub->size = req->size;
                                 sub->mem = mappedAddr;
                                 res.subscriptionId = sub->id;
+                                nxdb::log("EditSubscription_: %zu %p %p %dHz edited", req->subscriptionId, req->addr, req->size, req->frequencyHz);
                             }
                         } else
                             nxdb::log("EditSubscription_: invalid subscription %zu", req->subscriptionId);

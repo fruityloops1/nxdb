@@ -19,7 +19,7 @@ public:
 
 private:
     Ui::ProcessDockspace* ui;
-    const nxdb::Process& mProcess;
+    const nxdb::Process mProcess;
     ModuleList* mModuleList;
     Memory* mMemory;
 };

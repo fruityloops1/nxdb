@@ -6,8 +6,8 @@ ProcessDockspace::ProcessDockspace(QWidget* parent, const nxdb::Process& process
     : QMainWindow(parent)
     , ui(new Ui::ProcessDockspace)
     , mProcess(process)
-    , mModuleList(new ModuleList(this, process))
-    , mMemory(new Memory(this, process)) {
+    , mModuleList(new ModuleList(this, mProcess))
+    , mMemory(new Memory(this, mProcess)) {
     ui->setupUi(this);
 
     setDockOptions(DockOption::AnimatedDocks | DockOption::AllowNestedDocks | DockOption::AllowTabbedDocks);
