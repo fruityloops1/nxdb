@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Types.h"
+#include "types.h"
 
-namespace nxdb::util {
+namespace hk::util {
 
     namespace detail {
 
@@ -82,7 +82,6 @@ namespace nxdb::util {
             }
 
             constexpr void calculateWithCallback() {
-
                 for (u32 i = 0; i < nblocks(); i++) {
                     u32 k1 = getBlock<T, Read>(mData, i, mUserData);
 
@@ -142,23 +141,15 @@ namespace nxdb::util {
         return detail::hashMurmurImpl<T, detail::ReadDefault<T>>(data, len, seed);
     }
 
-    template <size_t N>
-    inline bool isEqualStringHash(const char* str, const char (&literal)[N], u32 seed = 0) {
+    template <size N>
+    bool isEqualStringHash(const char* str, const char (&literal)[N], u32 seed = 0) {
         constexpr u32 literalHash = hashMurmur(literal, seed);
         return hashMurmur(str, seed) == literalHash;
     }
 
-    inline u64 rtldElfHash(const char* name) {
-        u64 h = 0;
-        u64 g;
+    static_assert(hashMurmur("meow meow meow") == 0x1a1888b6);
+    static_assert(hashMurmur("Haiiiiiiiiiiii") == 0x6726fccb);
+    static_assert(hashMurmur(":333333333", 0xB00B1E5) == 0x4f39bed5);
+    static_assert(hashMurmur("lkdjtgljkwerlkgver#g#ää5r+#ä#23ü4#2ü3420395904e3r8i9", 0xB00B1E6) == 0xcaafb947);
 
-        while (*name) {
-            h = (h << 4) + *name++;
-            if ((g = h & 0xf0000000))
-                h ^= g >> 24;
-            h &= ~g;
-        }
-        return h;
-    }
-
-} // namespace nxdb::util
+} // namespace hk::util

@@ -313,19 +313,15 @@ namespace nxdb {
             CurrentProcess = 0xFFFF8001,
         };
 
-        struct ProdinfoData {
-            char magic[4];
-            int version;
-            int bodySize;
-            short model;
-            u8 _E[2754];
-            uint32_t sslCertSize;
-            uint64_t something;
-            u8 sslCert[0x800];
-            u8 sslCertHash[0x20];
-            u8 stuff[60672];
-        };
-
     } // namespace svc
 
 } // namespace nxdb
+
+inline u64 constexpr operator""_ns(unsigned long long ns) { return ns; }
+inline u64 constexpr operator""_us(unsigned long long µs) { return µs * 1000; }
+inline u64 constexpr operator""_ms(unsigned long long ms) { return ms * 1000000; }
+inline u64 constexpr operator""_s(unsigned long long s) { return s * 1000000000; }
+inline u64 constexpr operator""_B(unsigned long long b) { return b; }
+inline u64 constexpr operator""_KB(unsigned long long kb) { return kb * 1024; }
+inline u64 constexpr operator""_MB(unsigned long long mb) { return mb * 1024_KB; }
+inline u64 constexpr operator""_GB(unsigned long long gb) { return gb * 1024_MB; }

@@ -1,21 +1,12 @@
-[submodule "sysmodule/lib/enet"]
-	path = sysmodule/lib/enet
-	url = https://github.com/lsalzman/enet
 [submodule "sysmodule/lib/LibNerve"]
 	path = sysmodule/lib/LibNerve
 	url = https://github.com/fruityloops1/LibNerve/
 [submodule "sysmodule/lib/imgui"]
 	path = sysmodule/lib/imgui
 	url = https://github.com/ocornut/imgui
-[submodule "client/Library/enet"]
-	path = client/Library/enet
-	url = https://github.com/lsalzman/enet
 [submodule "client/Library/LibNerve"]
 	path = client/Library/LibNerve
 	url = https://github.com/fruityloops1/LibNerve/
 [submodule "client/Library/buddy_alloc"]
 	path = client/Library/buddy_alloc
 	url = https://github.com/spaskalev/buddy_alloc
-[submodule "client/Library/zstd"]
-	path = client/Library/zstd
-	url = https://github.com/facebook/zstd/

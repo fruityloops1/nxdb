@@ -1,63 +1,67 @@
 #pragma once
 
-#include "Client.h"
-#include "al/Nerve/NerveExecutor.h"
-#include "enet/enet.h"
-#include "pe/Enet/PacketHandler.h"
+#include "../../common.h"
+#include "types.h"
 #include <chrono>
-#include <mutex>
-#include <thread>
-#include <type_traits>
-#include <unordered_map>
+#include <netinet/in.h>
 
-namespace pe {
-    namespace enet {
-        class Client;
+namespace nxdb {
 
-        class Server : public al::NerveExecutor {
-            bool mIsDead = false;
-            std::thread mServerThread;
-            std::chrono::high_resolution_clock::time_point mSyncClockStartTimestamp;
-            const ENetCallbacks mCallbacks;
-            ENetAddress mAddress {};
-            ENetHost* mServer = nullptr;
-            int mExitCode = 0;
-            PacketHandler<Client>& mPacketHandler;
-            std::unordered_map<size_t /* hash code of ENetAddress */, Client> mClients;
-            std::recursive_mutex mEnetMutex;
+    class Server;
 
-            void threadFunc();
-            void fail(const char* msg);
+    struct Client {
+        struct sockaddr_in mAddr;
+        uint32_t mCliAddrLen = sizeof(mAddr);
+        int mFd = -1;
 
-        public:
-            Server(ENetAddress address, PacketHandler<Client>& handler, const ENetCallbacks& callbacks);
+        uint8_t mBuffer[size_t(4_KB)];
+        uintptr_t mBufferSize = 0;
+        ssize_t mNextPacketSize = 0;
+        PacketType mNextPacketType = NoPacket;
+        u64 mUuid;
+        Server* mServer = nullptr;
+        std::chrono::time_point<std::chrono::high_resolution_clock> mLastAlive = std::chrono::high_resolution_clock::now();
 
-            void exeStall();
-            void exeStartup();
-            void exeService();
+        bool mHasSentFontTexture = false;
 
-            void sendPacketToAll(IPacket* packet, bool reliable = true);
+        Client(Server* server)
+            : mServer(server) { }
 
-            void start();
-            int join() {
-                if (mServerThread.joinable())
-                    mServerThread.join();
-                return mExitCode;
-            }
+        bool handleEvent();
+        void handlePacket(PacketType type, void* data, size_t size);
 
-            void kill(int exitCode) {
-                mIsDead = true;
-                mExitCode = exitCode;
-            }
+        void sendPacketImpl(PacketType type, const void* buffer, size_t size);
+        template <typename T>
+        void sendPacket(PacketType type, const T& value) {
+            sendPacketImpl(type, (void*)&value, sizeof(T));
+        }
 
-            bool isAlive() const { return !mIsDead; }
+        void sendFontTexture();
+        bool hasSentFontTexture() const { return mHasSentFontTexture; }
+    };
 
-            auto getSyncClockStartTimestamp() { return mSyncClockStartTimestamp; }
-            void flush() { enet_host_flush(mServer); }
+    class Server {
+        uint16_t mPort = 34039;
+        int mFd = -1;
+        struct sockaddr_in mServAddr;
+        std::vector<Client> mClients;
+        fd_set mSet;
 
-            static constexpr int sSyncClockInterval = 12000;
-            friend struct Handlers;
-        };
+    public:
+        Server(uint16_t port = 34039);
 
-    } // namespace enet
-} // namespace pe
+        int start();
+        void run();
+
+        void handlePacket(PacketType type);
+
+        size_t getNumClients() const { return mClients.size(); }
+
+        template <typename Func>
+        void iterateClients(Func func) {
+            for (Client& client : mClients)
+                func(client);
+        }
+    };
+
+} // namespace nxdb

@@ -1,8 +1,6 @@
-#include "pe/Enet/NetClient.h"
-#include "pe/Enet/ProjectPacketHandler.h"
+#include "pe/Client.h"
 #include "pe/Render.h"
 #include "pe/Util.h"
-#include <nlohmann/json.hpp>
 
 #define BUDDY_ALLOC_IMPLEMENTATION
 #include "buddy_alloc.h"
@@ -40,12 +38,8 @@ int main() {
     void* buddyArena = malloc(arenaSize);
     sBuddy = buddy_init(reinterpret_cast<u8*>(buddyMetadata), reinterpret_cast<u8*>(buddyArena), arenaSize);
 
-    ENetCallbacks callbacks { buddyMalloc, buddyFree, memoryFull };
-
-    pe::enet::ProjectPacketHandler handler;
-    pe::enet::NetClient client(&handler);
-    client.connect("192.168.188.151", port);
-    client.join();
+    nxdb::Client client;
+    client.run();
 
     free(buddyMetadata);
     free(buddyArena);

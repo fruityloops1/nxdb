@@ -57,8 +57,8 @@ void __appInit(void) {
         diagAbortWithResult(rc);
 
     static const SocketInitConfig socketInitConfig = {
-        .tcp_tx_buf_size = 0x4000,
-        .tcp_rx_buf_size = 1024,
+        .tcp_tx_buf_size = 0x14000,
+        .tcp_rx_buf_size = 0x1000,
         .tcp_tx_buf_max_size = 0,
         .tcp_rx_buf_max_size = 0,
 
@@ -115,7 +115,7 @@ void __appExit(void) {
 }
 }
 
-#include "loop.h"
+#include "nxdb/ImGuiLoop.h"
 
 extern "C" int main(int argc, char* argv[]) {
     fsdevMountSdmc();
@@ -129,7 +129,7 @@ extern "C" int main(int argc, char* argv[]) {
         sleep(1);
     }
 
-    shit();
+    nxdb::runImguiLoop();
 
     return 0;
 }
