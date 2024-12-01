@@ -1,13 +1,16 @@
 #include "ImGuiLoop.h"
+#include "Component.h"
 #include "DrawDataPack.h"
 #include "LogServer.h"
 #include "Server.h"
 #include "imgui_internal.h"
+#include "windows/MainWindow.h"
 #include <cmath>
 #include <cstring>
 #include <stdlib.h>
 #include <string>
 #include <thread>
+#include <vector>
 
 extern "C" {
 #include "switch/arm/counter.h"
@@ -33,35 +36,46 @@ namespace nxdb {
         return hash;
     }
 
-    static nxdb::Server sServer;
-
     constexpr u64 sFrameRate = 60;
     const u64 sFrameTimeTicks = (1.0 / sFrameRate) * armGetSystemTickFreq();
 
-    float a = 0.0f;
-
     static u8 sDrawDataBuffer[512_KB];
     static std::string sCurClipboardString;
+    static nxdb::Server sServer;
+    static std::vector<Component*> sComponents;
+
+    static void showImGui() {
+
+        const ImGuiWindowFlags dockWindowFlags = ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoDocking
+            | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove
+            | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoNavFocus;
+
+        const ImGuiViewport* main = ImGui::GetMainViewport();
+
+        ImGui::SetNextWindowPos(main->WorkPos);
+        ImGui::SetNextWindowSize(main->WorkSize);
+        ImGui::SetNextWindowViewport(main->ID);
+        ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+
+        ImGui::Begin("sdffksdg", nullptr, dockWindowFlags);
+
+        ImGui::PopStyleVar();
+
+        ImGui::DockSpace(ImGui::GetID("MainDockspace"), { 0, 0 }, ImGuiDockNodeFlags_None);
+
+        for (Component* component : sComponents)
+            component->update();
+
+        ImGui::End();
+    }
 
     void render() {
         ImGuiIO& io = ImGui::GetIO();
         io.MouseDrawCursor = false;
 
-        auto& platformIO = ImGui::GetPlatformIO();
-        platformIO.Platform_SetClipboardTextFn = [](ImGuiContext*, const char* text) {
-            sServer.iterateClients([text](nxdb::Client& client) {
-                size_t textSize = std::strlen(text) + sizeof('\0');
-                client.sendPacketImpl(PacketType::SetClipboardText, text, textSize);
-            });
-        };
-        platformIO.Platform_GetClipboardTextFn = [](ImGuiContext*) -> const char* { return sCurClipboardString.c_str(); };
-
         ImGui::NewFrame();
 
-        // ImGui::ShowDemoWindow();
-        ImGui::ShowDemoWindow();
-        // ImGui::GetForegroundDrawList()->AddRectFilled({ 0, 200 }, { 200, 200 + (sinf(a) + 1) * 100.0f }, IM_COL32(255, 0, 0, 255));
-        a += 0.1f;
+        showImGui();
 
         ImGui::Render();
         ImDrawData* drawData = ImGui::GetDrawData();
@@ -122,6 +136,10 @@ namespace nxdb {
         sServer.run();
     }
 
+    static void initComponents() {
+        sComponents.push_back(new MainWindow);
+    }
+
     void runImguiLoop() {
 
         hidInitializeMouse();
@@ -140,6 +158,17 @@ namespace nxdb {
         io.BackendPlatformName = "Horizon";
         io.BackendRendererName = "network";
 
+        auto& platformIO = ImGui::GetPlatformIO();
+        platformIO.Platform_SetClipboardTextFn = [](ImGuiContext*, const char* text) {
+            sServer.iterateClients([text](nxdb::Client& client) {
+                size_t textSize = std::strlen(text) + sizeof('\0');
+                client.sendPacketImpl(PacketType::SetClipboardText, text, textSize);
+            });
+        };
+        platformIO.Platform_GetClipboardTextFn = [](ImGuiContext*) -> const char* { return sCurClipboardString.c_str(); };
+
+        io.Fonts->AddFontFromFileTTF("font.otf", 16);
+
         {
             u8* pixels;
             int width, height;
@@ -153,6 +182,8 @@ namespace nxdb {
             fclose(tex);
         }
 
+        initComponents();
+
         u64 lastFrame = armGetSystemTick();
         while (true) {
             if (sServer.getNumClients() != 0)
@@ -162,6 +193,8 @@ namespace nxdb {
             u64 ns = armTicksToNs(sFrameTimeTicks - diff);
             if (ns < 1e+9)
                 svcSleepThread(ns);
+            io.DeltaTime = float(armGetSystemTick() - lastFrame) / armGetSystemTickFreq();
+
             lastFrame = armGetSystemTick();
         }
     }

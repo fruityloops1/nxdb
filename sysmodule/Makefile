@@ -39,7 +39,7 @@ include $(DEVKITPRO)/libnx/switch_rules
 #---------------------------------------------------------------------------------
 TARGET		:=	$(notdir $(CURDIR))
 BUILD		:=	build
-SOURCES		:=	source lib/LibNerve/Source/al/Nerve source/net source/nxdb source/log lib/imgui
+SOURCES		:=	source lib/LibNerve/Source/al/Nerve source/net source/nxdb source/log lib/imgui source/nxdb/windows
 DATA        :=  data
 DEFINES     :=  -DDEBUG -DLOGGING -DHAS_SOCKLEN_T -DLIBNX -DIMGUI_USER_CONFIG='"nxdb_imgui_config.h"' -DIMGUI_DISABLE_DEFAULT_SHELL_FUNCTIONS
 
