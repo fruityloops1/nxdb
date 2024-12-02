@@ -19,7 +19,7 @@ namespace nxdb {
             constexpr int sMaxPidSearchRange = 0x1000;
             for (int i = 0; i < sMaxPidSearchRange; i++) {
                 u64 programId;
-                if (R_SUCCEEDED(pmdmntGetProgramId(&programId, i)))
+                if (R_SUCCEEDED(pmdmntGetProgramId(&programId, i)) && programId)
                     pids[numPids++] = i;
             }
         }

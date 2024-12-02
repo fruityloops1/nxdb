@@ -1,6 +1,7 @@
 #include "MainWindow.h"
+#include "DebuggingSession.h"
+#include "LogServer.h"
 #include "imgui.h"
-#include "imgui_internal.h"
 
 namespace nxdb {
 
@@ -26,8 +27,14 @@ namespace nxdb {
 
                     ImGui::TableSetColumnIndex(0);
                     ImGui::Text("%zu", p.processId);
+
                     ImGui::TableSetColumnIndex(1);
-                    ImGui::Text("%s", p.name);
+                    ImGui::Selectable(p.name, false, ImGuiSelectableFlags_SpanAllColumns);
+
+                    if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+                        getSharedData().registerComponent(new DebuggingSession(p.processId));
+                    }
+
                     ImGui::TableSetColumnIndex(2);
                     ImGui::Text("%016lX", p.programId);
                 }

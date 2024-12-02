@@ -38,7 +38,7 @@ namespace nxdb {
         memset(&mCliAddr, 0, sizeof(mCliAddr));
 
         mServAddr.sin_family = AF_INET;
-        mServAddr.sin_addr.s_addr = inet_addr("192.168.188.151");
+        mServAddr.sin_addr.s_addr = inet_addr("192.168.213.202");
         mServAddr.sin_port = htons(mPort);
 
         if (connect(mFd, (struct sockaddr*)&mServAddr, sizeof(mServAddr))) {

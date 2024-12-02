@@ -17,6 +17,7 @@ typedef uint16_t u16;
 typedef uint32_t u32;
 typedef uint64_t u64;
 typedef size_t size;
+typedef uintptr_t paddr;
 
 #define ALWAYSINLINE __attribute__((always_inline)) inline
 #define UNROLL __attribute__((optimize("unroll-loops")))

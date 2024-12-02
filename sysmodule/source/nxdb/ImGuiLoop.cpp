@@ -42,7 +42,6 @@ namespace nxdb {
     static u8 sDrawDataBuffer[512_KB];
     static std::string sCurClipboardString;
     static nxdb::Server sServer;
-    static std::vector<Component*> sComponents;
 
     static void showImGui() {
 
@@ -63,7 +62,8 @@ namespace nxdb {
 
         ImGui::DockSpace(ImGui::GetID("MainDockspace"), { 0, 0 }, ImGuiDockNodeFlags_None);
 
-        for (Component* component : sComponents)
+        Component::getSharedData().handleDeadComponents();
+        for (Component* component : Component::getSharedData().components)
             component->update();
 
         ImGui::End();
@@ -137,7 +137,9 @@ namespace nxdb {
     }
 
     static void initComponents() {
-        sComponents.push_back(new MainWindow);
+        auto& components = Component::getSharedData().components;
+
+        components.push_back(new MainWindow);
     }
 
     void runImguiLoop() {
