@@ -279,7 +279,7 @@ namespace pe {
     static void mouseButtonCallback(GLFWwindow* window, int button, int action, int mods) {
         double mouse_x, mouse_y;
         glfwGetCursorPos(window, &mouse_x, &mouse_y);
-        ImVec2 cursorPos(mouse_x * 2, mouse_y * 2);
+        ImVec2 cursorPos(mouse_x, mouse_y);
 
         sendMouseEvent(cursorPos, button, action == GLFW_PRESS);
     }
@@ -287,7 +287,7 @@ namespace pe {
     static void mouseScrollCallback(GLFWwindow* window, double xoffset, double yoffset) {
         double mouse_x, mouse_y;
         glfwGetCursorPos(window, &mouse_x, &mouse_y);
-        ImVec2 cursorPos(mouse_x * 2, mouse_y * 2);
+        ImVec2 cursorPos(mouse_x, mouse_y);
 
         sendMouseEvent(cursorPos, -1, false, float(xoffset), float(yoffset));
     }
@@ -342,7 +342,7 @@ namespace pe {
         int display_w, display_h;
         glfwGetWindowSize(window, &w, &h);
         glfwGetFramebufferSize(window, &display_w, &display_h);
-        io.DisplaySize = ImVec2((float)w * 2, (float)h * 2);
+        io.DisplaySize = ImVec2((float)w, (float)h);
         // if (w > 0 && h > 0)
         //    io.DisplayFramebufferScale = ImVec2((float)display_w / (float)w, (float)display_h / (float)h);
 
@@ -352,7 +352,7 @@ namespace pe {
 
         double mouse_x, mouse_y;
         glfwGetCursorPos(window, &mouse_x, &mouse_y);
-        ImVec2 cursorPos(mouse_x * 2, mouse_y * 2);
+        ImVec2 cursorPos(mouse_x, mouse_y);
 
         if (sLastCursorPos.x != cursorPos.x || sLastCursorPos.y != cursorPos.y) {
             sendMouseEvent(cursorPos);

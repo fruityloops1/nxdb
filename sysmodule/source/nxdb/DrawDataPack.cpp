@@ -1,35 +1,17 @@
 #include "DrawDataPack.h"
 #include "../../../common.h"
+#include "hash.h"
 #include "types.h"
 #include <algorithm>
 #include <cstring>
 
 namespace nxdb {
 
-    static size_t calcImDrawDataSize(const ImDrawData* data) {
-        size_t packetSize = 0;
+    constexpr int sMaxDrawLists = 128;
+    static u32 sPrevDrawListHashes[sMaxDrawLists] { 0 };
+    static int sNumPrevDrawLists = 0;
 
-        packetSize += sizeof(ImDrawDataPackHeader);
-
-        for (ImDrawList* cmdList : data->CmdLists) {
-            packetSize += sizeof(cmdList->CmdBuffer.size());
-            packetSize += sizeof(cmdList->VtxBuffer.size());
-            packetSize += sizeof(cmdList->IdxBuffer.size());
-            packetSize += cmdList->CmdBuffer.size() * sizeof(PackedImDrawCmd);
-            packetSize += cmdList->VtxBuffer.size() * sizeof(PackedImDrawVert);
-            packetSize += cmdList->IdxBuffer.size() * sizeof(ImDrawIdx);
-        }
-
-        return packetSize;
-    }
-
-    void packImDrawData(void* out, size_t* outSize, ImDrawData* data) {
-        const size_t packetSize = calcImDrawDataSize(data);
-        if (outSize)
-            *outSize = packetSize;
-        if (out == nullptr)
-            return;
-
+    size packImDrawData(void* out, ImDrawData* data) {
         uintptr_t cursor = 0;
 
         const auto getDataAtCursor = [&]<typename Type>(Type) {
@@ -49,13 +31,25 @@ namespace nxdb {
         const auto& displaySize = ImGui::GetIO().DisplaySize;
 
         for (int cmdListIdx = 0; cmdListIdx < data->CmdListsCount; cmdListIdx++) {
-            ImDrawList* cmdList = data->CmdLists[cmdListIdx];
-            write(cmdList->CmdBuffer.size());
-            write(cmdList->VtxBuffer.size());
-            write(cmdList->IdxBuffer.size());
+            ImDrawList* drawList = data->CmdLists[cmdListIdx];
+            u32 hash = hashImDrawList(drawList);
+            u32 prevHash = sPrevDrawListHashes[cmdListIdx];
 
-            for (int cmdIdx = 0; cmdIdx < cmdList->CmdBuffer.size(); cmdIdx++) {
-                auto& srcCmd = cmdList->CmdBuffer[cmdIdx];
+            if (hash == prevHash) {
+                write(int(0));
+                write(int(0));
+                write(int(0));
+                continue;
+            }
+
+            sPrevDrawListHashes[cmdListIdx] = hash;
+
+            write(drawList->CmdBuffer.size());
+            write(drawList->VtxBuffer.size());
+            write(drawList->IdxBuffer.size());
+
+            for (int cmdIdx = 0; cmdIdx < drawList->CmdBuffer.size(); cmdIdx++) {
+                auto& srcCmd = drawList->CmdBuffer[cmdIdx];
 
                 write(PackedImDrawCmd { {
                                             u16((srcCmd.ClipRect.x / displaySize.x) * PackedImDrawCmd::sBoundClip),
@@ -66,8 +60,8 @@ namespace nxdb {
                     u16(srcCmd.VtxOffset), u16(srcCmd.IdxOffset), u16(srcCmd.ElemCount) });
             }
 
-            for (int i = 0; i < cmdList->VtxBuffer.size(); i++) {
-                auto& srcVtx = cmdList->VtxBuffer.Data[i];
+            for (int i = 0; i < drawList->VtxBuffer.size(); i++) {
+                auto& srcVtx = drawList->VtxBuffer.Data[i];
 
                 PackedImDrawVert vert;
                 vert.col = srcVtx.col;
@@ -80,9 +74,21 @@ namespace nxdb {
                 write(vert);
             }
 
-            std::memcpy(getDataAtCursor(ImDrawIdx()), cmdList->IdxBuffer.Data, sizeof(ImDrawIdx) * cmdList->IdxBuffer.size());
-            cursor += sizeof(ImDrawIdx) * cmdList->IdxBuffer.size();
+            std::memcpy(getDataAtCursor(ImDrawIdx()), drawList->IdxBuffer.Data, sizeof(ImDrawIdx) * drawList->IdxBuffer.size());
+            cursor += sizeof(ImDrawIdx) * drawList->IdxBuffer.size();
         }
+
+        sNumPrevDrawLists = data->CmdListsCount;
+
+        return size(cursor);
+    }
+
+    u32 hashImDrawList(ImDrawList* list) {
+        u32 hash = 0;
+        hash += hk::util::hashMurmur(reinterpret_cast<u8*>(list->VtxBuffer.Data), list->VtxBuffer.size_in_bytes());
+        hash += hk::util::hashMurmur(reinterpret_cast<u8*>(list->IdxBuffer.Data), list->IdxBuffer.size_in_bytes());
+        hash += hk::util::hashMurmur(reinterpret_cast<u8*>(list->CmdBuffer.Data), list->CmdBuffer.size_in_bytes());
+        return hash;
     }
 
 } // namespace nxdb

@@ -38,7 +38,7 @@ namespace nxdb {
         memset(&mCliAddr, 0, sizeof(mCliAddr));
 
         mServAddr.sin_family = AF_INET;
-        mServAddr.sin_addr.s_addr = inet_addr("192.168.213.202");
+        mServAddr.sin_addr.s_addr = inet_addr("192.168.188.151");
         mServAddr.sin_port = htons(mPort);
 
         if (connect(mFd, (struct sockaddr*)&mServAddr, sizeof(mServAddr))) {
@@ -124,8 +124,8 @@ namespace nxdb {
             FD_ZERO(&set);
             FD_SET(mFd, &set);
 
-            timeval time = { 0, 8000 /* 8ms */ };
-            select(mFd + 1, &set, nullptr, nullptr, &time);
+            // timeval time = { 0, 250000 /* 8ms */ };
+            // select(mFd + 1, &set, nullptr, nullptr, &time);
 
             if (!mHasSentHello) {
                 sendPacket(PacketType::Hello, 0);
@@ -191,7 +191,7 @@ namespace nxdb {
                 mNextPacketType = NoPacket;
             }
 
-            ssize_t rem = recv(mFd, mBuffer + mBufferSize, sizeof(mBuffer) - mBufferSize, MSG_DONTWAIT);
+            ssize_t rem = recv(mFd, mBuffer + mBufferSize, sizeof(mBuffer) - mBufferSize, 0);
             if (rem == -1) {
                 if (errno == EAGAIN || errno == EWOULDBLOCK)
                     ;

@@ -54,6 +54,11 @@ namespace nxdb {
             return 3;
         }
 
+        if (setsockopt(mFd, IPPROTO_TCP, 1 /* TCP_NODELAY (?) */, &opt, sizeof(opt)) < 0) {
+            nxdb::log("setsockopt() failed");
+            return 3;
+        }
+
         memset(&mServAddr, 0, sizeof(mServAddr));
 
         mServAddr.sin_family = AF_INET;
@@ -181,7 +186,7 @@ namespace nxdb {
             mNextPacketType = NoPacket;
         }
 
-        ssize_t rem = recv(mFd, mBuffer + mBufferSize, sizeof(mBuffer) - mBufferSize, MSG_DONTWAIT);
+        ssize_t rem = recv(mFd, mBuffer + mBufferSize, sizeof(mBuffer) - mBufferSize, 0);
         if (rem == 0) {
             close(mFd);
             mFd = 0;
@@ -216,7 +221,7 @@ namespace nxdb {
 
             EINTR;
 
-            timeval a = { 0, 15000 /* 15ms */ };
+            timeval a = { 0, 0 /* 15ms */ };
             int activity = select(maxfd + 1, &mSet, nullptr, nullptr, &a);
 
             if (activity < 0) {

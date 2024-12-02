@@ -4,6 +4,7 @@
 #include <cstring>
 
 namespace pe {
+    static ImDrawData* sDrawDataPrev = nullptr;
     static ImDrawData* sDrawData = nullptr;
 
     ImDrawData* unpackDrawData(void* data, size_t size, ImGuiMouseCursor* outCursor) {
@@ -23,6 +24,9 @@ namespace pe {
 
         if (sDrawData == nullptr) {
             sDrawData = new ImDrawData;
+        } else {
+            for (ImDrawList* cmdList : sDrawData->CmdLists)
+                delete cmdList;
         }
 
         auto& displaySize = ImGui::GetIO().DisplaySize;
@@ -37,6 +41,15 @@ namespace pe {
             int cmdBufferSize = read(int());
             int vtxBufferSize = read(int());
             int idxBufferSize = read(int());
+
+            if (cmdBufferSize == 0 && vtxBufferSize == 0 && idxBufferSize == 0 && sDrawDataPrev && cmdListIdx < sDrawDataPrev->CmdLists.size()) {
+                ImDrawList* srcList = sDrawDataPrev->CmdLists[cmdListIdx];
+                list->CmdBuffer = srcList->CmdBuffer;
+                list->VtxBuffer = srcList->VtxBuffer;
+                list->IdxBuffer = srcList->IdxBuffer;
+                list->Flags = srcList->Flags;
+                continue;
+            }
 
             list->CmdBuffer.resize(cmdBufferSize);
             list->VtxBuffer.resize(vtxBufferSize);
@@ -80,6 +93,26 @@ namespace pe {
             std::memcpy(list->IdxBuffer.Data, getDataAtCursor(ImDrawIdx()), sizeof(ImDrawIdx) * idxBufferSize);
             cursor += sizeof(ImDrawIdx) * idxBufferSize;
         }
+
+        {
+            if (sDrawDataPrev)
+                sDrawDataPrev->CmdLists.clear_delete();
+            else
+                sDrawDataPrev = new ImDrawData;
+
+            sDrawDataPrev->CmdLists.resize(sDrawData->CmdListsCount);
+            for (int cmdListIdx = 0; cmdListIdx < sDrawData->CmdListsCount; cmdListIdx++) {
+                sDrawDataPrev->CmdLists.Data[cmdListIdx] = new ImDrawList(nullptr);
+                ImDrawList* list = sDrawDataPrev->CmdLists[cmdListIdx];
+                ImDrawList* srcList = sDrawData->CmdLists[cmdListIdx];
+                list->_Data = ImGui::GetDrawListSharedData();
+                list->CmdBuffer = srcList->CmdBuffer;
+                list->VtxBuffer = srcList->VtxBuffer;
+                list->IdxBuffer = srcList->IdxBuffer;
+                list->Flags = srcList->Flags;
+            }
+        }
+
         return sDrawData;
     }
 

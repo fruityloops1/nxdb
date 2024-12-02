@@ -3,6 +3,7 @@
 #include "DrawDataPack.h"
 #include "LogServer.h"
 #include "Server.h"
+#include "TimeProfiler.h"
 #include "imgui_internal.h"
 #include "windows/MainWindow.h"
 #include <cmath>
@@ -28,11 +29,8 @@ namespace nxdb {
 
     static u32 calcDrawDataHash(const ImDrawData* data) {
         u32 hash = 0;
-        for (ImDrawList* cmdList : data->CmdLists) {
-            hash += hk::util::hashMurmur(reinterpret_cast<u8*>(cmdList->VtxBuffer.Data), cmdList->VtxBuffer.size_in_bytes());
-            hash += hk::util::hashMurmur(reinterpret_cast<u8*>(cmdList->IdxBuffer.Data), cmdList->IdxBuffer.size_in_bytes());
-            hash += hk::util::hashMurmur(reinterpret_cast<u8*>(cmdList->CmdBuffer.Data), cmdList->CmdBuffer.size_in_bytes());
-        }
+        for (ImDrawList* cmdList : data->CmdLists)
+            hash += hashImDrawList(cmdList);
         return hash;
     }
 
@@ -67,11 +65,38 @@ namespace nxdb {
             component->update();
 
         ImGui::End();
+
+        // ImGui::GetForegroundDrawList()->AddRectFilled({ 0, 400 }, { 400, 400 + std::sin(armGetSystemTick() / float(armGetSystemTickFreq()) * 3) * 50 }, IM_COL32(255, 0, 0, 255));
     }
 
     void render() {
         ImGuiIO& io = ImGui::GetIO();
-        io.MouseDrawCursor = false;
+        /*HidMouseState mouseState { 0 };
+        hidGetMouseStates(&mouseState, 1);
+
+        float multiplier = io.DisplaySize.x / 1280.f;
+        io.AddMousePosEvent(mouseState.x * multiplier, mouseState.y * multiplier);
+        if (mouseState.wheel_delta_x != 0)
+            io.AddMouseWheelEvent(0.0f, mouseState.wheel_delta_x > 0 ? 5 : -5);
+
+        constexpr int mouse_mapping[][2] = {
+            { ImGuiMouseButton_Left, static_cast<const int>(HidMouseButton_Left) },
+            { ImGuiMouseButton_Right, static_cast<const int>(HidMouseButton_Right) },
+            { ImGuiMouseButton_Middle, static_cast<const int>(HidMouseButton_Middle) },
+        };
+
+        static u32 sLastMouseButtons = 0;
+
+        for (auto [im_k, nx_k] : mouse_mapping) {
+            if (mouseState.buttons & nx_k)
+                io.AddMouseButtonEvent((ImGuiMouseButton)im_k, true);
+            else if (sLastMouseButtons & nx_k)
+                io.AddMouseButtonEvent((ImGuiMouseButton)im_k, false);
+        }
+
+        sLastMouseButtons = mouseState.buttons;
+
+        io.MouseDrawCursor = true;*/
 
         ImGui::NewFrame();
 
@@ -90,20 +115,25 @@ namespace nxdb {
             u32 drawDataHash = calcDrawDataHash(drawData);
             if (sRerender || lastDrawDataHash != drawDataHash) {
                 sRerender = false;
-                size_t size;
-                packImDrawData(nullptr, &size, drawData);
-                IM_ASSERT(size <= sizeof(sDrawDataBuffer));
-                packImDrawData(sDrawDataBuffer, nullptr, drawData);
-                sServer.iterateClients([size](nxdb::Client& client) {
-                    client.sendPacketImpl(PacketType::DrawData, sDrawDataBuffer, size);
+                TimeProfiler clock("PackDrawData");
+                size_t written = packImDrawData(sDrawDataBuffer, drawData);
+                clock.print();
+
+                clock = "SendDrawData";
+                // whatever about the undefined behavior
+                IM_ASSERT(written <= sizeof(sDrawDataBuffer));
+                sServer.iterateClients([written](nxdb::Client& client) {
+                    client.sendPacketImpl(PacketType::DrawData, sDrawDataBuffer, written);
                     if (!client.hasSentFontTexture())
                         client.sendFontTexture();
                 });
+                clock.print();
+
                 size_t cmdCount = 0;
                 for (auto& cmd : drawData->CmdLists) {
                     cmdCount += cmd->CmdBuffer.size();
                 }
-                nxdb::log("Packet size: %3.2fKB TotalVtxCount %zu TotalIdxCount %zu TotalCmdCount %zu", size / 1024.f, drawData->TotalVtxCount, drawData->TotalIdxCount, cmdCount);
+                nxdb::log("Packet size: %3.2fKB TotalVtxCount %zu TotalIdxCount %zu TotalCmdCount %zu", written / 1024.f, drawData->TotalVtxCount, drawData->TotalIdxCount, cmdCount);
 
                 {
                     static u64 diffs[10];
@@ -123,7 +153,7 @@ namespace nxdb {
                     avgDiff /= 10;
 
                     float fps = 1 / (float(avgDiff) / armGetSystemTickFreq());
-                    nxdb::log("FPS: %.2f", fps);
+                    // nxdb::log("FPS: %.2f", fps);
 
                     lastTick = now;
                 }
